@@ -1,5 +1,8 @@
 import time
-
+from search_algorithm import SearchAlgorithm
+from simple_heuristic import SimpleHeuristic
+from complex_heuristic import ComplexHeuristic
+from base_heuristic import BaseHeuristic
 
 class Game:
 
@@ -85,7 +88,12 @@ class Game:
         return self.player_turn
 
     # TODO: Implement play loop
-    def play(self, algo=None, player_x=None, player_o=None):
+    def play(self,
+             algo: SearchAlgorithm,
+             e1: BaseHeuristic,
+             e2: BaseHeuristic,
+             player_x=None,
+             player_o=None):
         pass
 
 def main():
