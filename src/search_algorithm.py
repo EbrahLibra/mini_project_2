@@ -15,16 +15,16 @@ class SearchAlgorithm:
         else:
             self.model = self.MINIMAX
 
-    def evaluate(self):
+    def evaluate(self, max: bool):
         if self.model == self.MINIMAX:
-            return self._evaluate_minimax()
+            return self._evaluate_minimax(max)
         else:
-            return self._evaluate_alpha_beta()
+            return self._evaluate_alpha_beta(max)
 
     # TODO: return (value, x, y) of optimal position using euristics
-    def _evaluate_minimax(self):
+    def _evaluate_minimax(self, max: bool):
         pass
 
     # TODO: return (value, x, y) of optimal position using euristics
-    def _evaluate_alpha_beta(self):
+    def _evaluate_alpha_beta(self, max: bool):
         pass
