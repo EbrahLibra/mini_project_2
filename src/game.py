@@ -15,7 +15,7 @@ class Game:
     # - the play modes - H-H, H-AI, AI-H and AI-AI (pm)
     def __init__(self,
                  board_dimension=3,
-                 block_number: int=0,
+                 block_number: int = 0,
                  # block_positions: [(int, int)] = [(0,0)],
                  winning_line_size=3,
                  recommend=True):
@@ -56,7 +56,6 @@ class Game:
         else:
             return True
 
-    # TODO: Implement horizontal and diagonal checks (in seperate method)
     # Returns . if tie, X if X wins, 0 if 0 wins
     def is_end(self) -> str:
         # Vertical win
@@ -65,7 +64,6 @@ class Game:
                 return 'X'
             elif self._win_in_vertical_board_segment(x=i) == 'O':
                 return 'O'
-
 
     def check_end(self):
         self.result = self.is_end()
@@ -123,7 +121,7 @@ class Game:
             #     (m, x, y) = algo.evaluate(max=False)
             #
             # end = time.time()
-            (x, y) = (0,0)
+            (x, y) = (0, 0)
             if (self.player_turn == 'X' and player_x == self.HUMAN) or (
                     self.player_turn == 'O' and player_o == self.HUMAN):
                 # if self.recommend:
@@ -144,6 +142,46 @@ class Game:
                 return self.current_state[x][i]
         return ''
 
+    def check_diagonal_board_win(self, board, success_factor):
+        length = len(board)
+        x_expected_winning_criteria = 'X' * success_factor
+        o_expected_winning_criteria = 'O' * success_factor
+        for column in range(length):
+            target_diagonal = ''
+            for row, row_list in enumerate(board):
+                if 0 <= column + row < length:
+                    target_diagonal += row_list[column + row]
+            if x_expected_winning_criteria in target_diagonal:
+                return 'X'
+            elif o_expected_winning_criteria in target_diagonal:
+                return 'O'
+        for column in reversed(range(-(length - 1), 1)):
+            target_diagonal = ''
+            for row, row_list in enumerate(board):
+                if 0 <= column + row < length:
+                    target_diagonal += row_list[column + row]
+            if x_expected_winning_criteria in target_diagonal:
+                return 'X'
+            elif o_expected_winning_criteria in target_diagonal:
+                return 'O'
+        for column in reversed(range(length)):
+            target_diagonal = ''
+            for row, row_list in enumerate(board):
+                if 0 <= column - row < length:
+                    target_diagonal += row_list[column - row]
+            if x_expected_winning_criteria in target_diagonal:
+                return 'X'
+            elif o_expected_winning_criteria in target_diagonal:
+                return 'O'
+        for column in range(length):
+            target_diagonal = ''
+            for row, row_list in enumerate(reversed(board)):
+                if 0 <= column + row < length:
+                    target_diagonal += row_list[column + row]
+            if x_expected_winning_criteria in target_diagonal:
+                return 'X'
+            elif o_expected_winning_criteria in target_diagonal:
+                return 'O'
 
 def main():
     g = Game(board_dimension=5)
