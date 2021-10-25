@@ -197,6 +197,16 @@ class Game:
                 return 'O'
             target_column = ''
 
+    def check_horizontal_win(board, success_factor) -> str:
+        x_expected_winning_criteria = 'X' * success_factor
+        o_expected_winning_criteria = 'O' * success_factor
+        for row in range(len(board) - 1):
+            target_row = ''.join(board[row])
+            if x_expected_winning_criteria in target_row:
+                return 'X'
+            elif o_expected_winning_criteria in target_row:
+                return 'O'
+
 
 def main():
     g = Game(board_dimension=5)
