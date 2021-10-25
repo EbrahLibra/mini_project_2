@@ -4,6 +4,7 @@ from simple_heuristic import SimpleHeuristic
 from complex_heuristic import ComplexHeuristic
 from base_heuristic import BaseHeuristic
 
+
 class Game:
     HUMAN = 0
     AI = 1
@@ -182,6 +183,20 @@ class Game:
                 return 'X'
             elif o_expected_winning_criteria in target_diagonal:
                 return 'O'
+
+    def check_vertical_board_win(self, board, success_factor) -> str:
+        x_expected_winning_criteria = 'X' * success_factor
+        o_expected_winning_criteria = 'O' * success_factor
+        target_column = ''
+        for column in range(len(board) - 1):
+            for row_list in board:
+                target_column += row_list[column]
+            if x_expected_winning_criteria in target_column:
+                return 'X'
+            elif o_expected_winning_criteria in target_column:
+                return 'O'
+            target_column = ''
+
 
 def main():
     g = Game(board_dimension=5)
