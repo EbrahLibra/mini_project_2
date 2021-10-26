@@ -80,12 +80,29 @@ class Game:
     def input_move(self):
         while True:
             print(F'Player {self.player_turn}, enter your move:')
-            px = int(input('enter the x coordinate: '))
-            py = int(input('enter the y coordinate: '))
+            entry = input('enter the x coordinate: ')
+            while not self.is_integer(entry):
+                entry = input('Please, enter an integer value! waiting:')
+            else:
+                px = int(entry)
+            entry = input('enter the y coordinate:')
+            while not self.is_integer(entry):
+                entry = input('Please, enter an integer value! waiting:')
+            else:
+                py = int(entry)
             if self.is_valid(px, py):
                 return (px, py)
             else:
                 print('The move is not valid! Try again.')
+
+    def is_integer(self, value):
+        isInteger = False
+        try:
+            value = int(value)
+            isInteger = True
+        except ValueError:
+            pass
+        return isInteger
 
     def switch_player(self):
         if self.player_turn == 'X':
