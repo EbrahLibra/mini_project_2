@@ -48,7 +48,7 @@ class Game:
 
     # 'B' is for a block at that position
     def is_valid(self, px, py):
-        if px < 0 or px > self._board_dimension or py < 0 or py > self._board_dimension:
+        if px < 0 or px >= self._board_dimension or py < 0 or py >= self._board_dimension:
             return False
         elif self.current_state[px][py] != '.':
             return False
