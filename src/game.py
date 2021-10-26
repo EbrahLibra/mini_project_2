@@ -17,12 +17,12 @@ class Game:
     def __init__(self,
                  board_dimension=3,
                  block_number: int = 0,
-                 # block_positions: [(int, int)] = [(0,0)],
+                 block_positions: list = None,
                  winning_line_size=3,
                  recommend=True):
         self._board_dimension = board_dimension
         self._block_number = block_number
-        # self._block_position = block_positions
+        self._block_positions = block_positions
         self._winning_line_size = winning_line_size
         self.recommend = recommend
         self.player_turn = None
@@ -36,9 +36,13 @@ class Game:
         # X always starts
         self.player_turn = 'X'
 
-    # TODO: add blocks (in seperate function)
+    def add_blocks(self):
+        for coordinates in self._block_positions:
+            self.current_state[coordinates[0]][coordinates[1]] = 'B'
+
     def draw_board(self):
         print()
+        self.add_blocks()
         print("Current board state:")
         for y in range(self._board_dimension):
             for x in range(self._board_dimension):
@@ -224,7 +228,7 @@ class Game:
 
 
 def main():
-    g = Game(board_dimension=5)
+    g = Game(board_dimension=5, block_positions=[(0, 1), (0, 2)])
     g.play()
 
 
