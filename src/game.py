@@ -59,12 +59,10 @@ class Game:
 
     # Returns . if tie, X if X wins, 0 if 0 wins
     def is_end(self) -> str:
-        # Vertical win
-        for i in range(self._board_dimension):
-            if self._win_in_vertical_board_segment(x=i) == 'X':
-                return 'X'
-            elif self._win_in_vertical_board_segment(x=i) == 'O':
-                return 'O'
+        winner = self.check_diagonal_board_win(self.current_state, self._winning_line_size)
+        winner = self.check_horizontal_win(self.current_state, self._winning_line_size) if winner == None else winner
+        winner = self.check_vertical_board_win(self.current_state, self._winning_line_size) if winner == None else winner
+        return winner
 
     def check_end(self):
         self.result = self.is_end()
