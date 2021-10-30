@@ -206,15 +206,14 @@ class Game:
     def check_vertical_board_win(self, board, success_factor) -> str:
         x_expected_winning_criteria = 'X' * success_factor
         o_expected_winning_criteria = 'O' * success_factor
-        target_column = ''
-        for column in range(len(board) - 1):
+        for column in range(len(board)):
+            target_column = ''
             for row_list in board:
                 target_column += row_list[column]
             if x_expected_winning_criteria in target_column:
                 return 'X'
             elif o_expected_winning_criteria in target_column:
                 return 'O'
-            target_column = ''
 
     def check_horizontal_win(self, board, success_factor) -> str:
         x_expected_winning_criteria = 'X' * success_factor
