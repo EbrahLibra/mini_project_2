@@ -166,7 +166,7 @@ class Game:
         length = len(board)
         x_expected_winning_criteria = 'X' * success_factor
         o_expected_winning_criteria = 'O' * success_factor
-        for column in range(length):
+        for column in range(1, length):
             target_diagonal = ''
             for row, row_list in enumerate(board):
                 if 0 <= column + row < length:
@@ -193,7 +193,7 @@ class Game:
                 return 'X'
             elif o_expected_winning_criteria in target_diagonal:
                 return 'O'
-        for column in range(length):
+        for column in range(1, length):
             target_diagonal = ''
             for row, row_list in enumerate(reversed(board)):
                 if 0 <= column + row < length:
