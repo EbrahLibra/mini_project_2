@@ -39,8 +39,8 @@ class Game:
         self.player_turn = 'X'
 
     def initialize_search_algorithm(self):
-        e1 = SimpleHeuristic(self.current_state)
-        e2 = ComplexHeuristic(self.current_state, self._winning_line_size)
+        e1 = SimpleHeuristic()
+        e2 = ComplexHeuristic(self._winning_line_size)
         search_algo = SearchAlgorithm(
             model=0,
             e1=e1,
@@ -147,9 +147,9 @@ class Game:
             # start = time.time()
             #
             # if self.player_turn == 'X':
-            #     (m, x, y) = algo.evaluate(max=True)
+            #     (m, x, y) = algo.evaluate(game=self, max=True)
             # else:
-            #     (m, x, y) = algo.evaluate(max=False)
+            #     (m, x, y) = algo.evaluate(game=self, max=False)
             #
             # end = time.time()
             (x, y) = (0, 0)

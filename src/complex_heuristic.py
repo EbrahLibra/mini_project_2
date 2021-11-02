@@ -7,16 +7,15 @@ class ComplexHeuristic(BaseHeuristic):
     :param board: Testing board
     :param success_factor: the number of peaces to win
     """
-    def __init__(self, board, success_factor):
-        super().__init__(board)
+    def __init__(self, success_factor):
         self._success_factor = success_factor
 
     """
     :return: difference number of options for both players
     """
-    def calculate_value(self) -> int:
+    def calculate_value(self, board) -> int:
         # diagonal analysis
-        length = len(self._board)
+        length = len(board)
         length = length
         x_expected_winning_criteria = 'X' * self._success_factor
         o_expected_winning_criteria = 'O' * self._success_factor
@@ -25,7 +24,7 @@ class ComplexHeuristic(BaseHeuristic):
         o_diagonal_chances = 0
         for column in range(1, length):
             target_diagonal = ''
-            for row, row_list in enumerate(self._board):
+            for row, row_list in enumerate(board):
                 if 0 <= column + row < length:
                     target_diagonal += row_list[column + row]
             if x_expected_winning_criteria in target_diagonal.replace('.', 'X'):
@@ -34,7 +33,7 @@ class ComplexHeuristic(BaseHeuristic):
                 o_diagonal_chances += 1
         for column in reversed(range(-(length - 1), 1)):
             target_diagonal = ''
-            for row, row_list in enumerate(self._board):
+            for row, row_list in enumerate(board):
                 if 0 <= column + row < length:
                     target_diagonal += row_list[column + row]
             if x_expected_winning_criteria in target_diagonal.replace('.', 'X'):
@@ -43,7 +42,7 @@ class ComplexHeuristic(BaseHeuristic):
                 o_diagonal_chances += 1
         for column in reversed(range(length)):
             target_diagonal = ''
-            for row, row_list in enumerate(self._board):
+            for row, row_list in enumerate(board):
                 if 0 <= column - row < length:
                     target_diagonal += row_list[column - row]
             if x_expected_winning_criteria in target_diagonal.replace('.', 'X'):
@@ -52,7 +51,7 @@ class ComplexHeuristic(BaseHeuristic):
                 o_diagonal_chances += 1
         for column in range(1, length):
             target_diagonal = ''
-            for row, row_list in enumerate(reversed(self._board)):
+            for row, row_list in enumerate(reversed(board)):
                 if 0 <= column + row < length:
                     target_diagonal += row_list[column + row]
             if x_expected_winning_criteria in target_diagonal.replace('.', 'X'):
@@ -64,7 +63,7 @@ class ComplexHeuristic(BaseHeuristic):
         o_vertical_chances = 0
         for column in range(length):
             target_column = ''
-            for row_list in self._board:
+            for row_list in board:
                 target_column += row_list[column]
             if x_expected_winning_criteria in target_column.replace('.', 'X'):
                 x_vertical_chances += 1
@@ -74,7 +73,7 @@ class ComplexHeuristic(BaseHeuristic):
         x_horizontal_chances = 0
         o_horizontal_chances = 0
         for row in range(length - 1):
-            target_row = ''.join(self._board[row])
+            target_row = ''.join(board[row])
             if x_expected_winning_criteria in target_row.replace('.', 'X'):
                 x_horizontal_chances += 1
             if o_expected_winning_criteria in target_row.replace('.', 'O'):
