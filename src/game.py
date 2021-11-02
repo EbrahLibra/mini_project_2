@@ -129,7 +129,6 @@ class Game:
 
     # XXX: Uncomment when AI added components
     def play(self,
-             # algo: SearchAlgorithm = 1,
              player_x=None,
              player_o=None):
 
@@ -148,9 +147,9 @@ class Game:
             # start = time.time()
             #
             # if self.player_turn == 'X':
-            #     (m, x, y) = algo.evaluate(game=self, max=True)
+            #     (m, x, y) = self._search_algo.evaluate(game=self, max=True)
             # else:
-            #     (m, x, y) = algo.evaluate(game=self, max=False)
+            #     (m, x, y) = self._search_algo.evaluate(game=self, max=False)
             #
             # end = time.time()
             (x, y) = (0, 0)

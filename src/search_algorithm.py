@@ -24,7 +24,7 @@ class SearchAlgorithm:
         else:
             return self._evaluate_alpha_beta(max, game)
 
-    # TODO: return (value, x, y) of optimal position using euristics
+    # TODO: return (value, x, y) of optimal position using heuristics
     # XXX: Not tested yet (based on skeleton-tictactoe)
     def _evaluate_minimax(self, max: bool, game):
         value = 2
@@ -59,7 +59,7 @@ class SearchAlgorithm:
                     game.current_state[i][j] = '.'
         return (value, x, y)
 
-    # TODO: return (value, x, y) of optimal position using euristics
+    # TODO: return (value, x, y) of optimal position using heuristics
     # XXX: Not tested yet (based on skeleton-tictactoe)
     def _evaluate_alpha_beta(self, max: bool, game, alpha=-2, beta=2):
         value = 2
@@ -79,14 +79,14 @@ class SearchAlgorithm:
                 if game.current_state[i][j] == '.':
                     if max:
                         game.current_state[i][j] = 'O'
-                        (v, _, _) = self._e1.calculate_value(game.current_state)
+                        (v, _, _) = self._evaluate_alpha_beta(max=False, game=game)
                         if v > value:
                             value = v
                             x = i
                             y = j
                     else:
                         game.current_state[i][j] = 'X'
-                        (v, _, _) = self._e1.calculate_value(game.current_state)
+                        (v, _, _) = self._evaluate_alpha_beta(max=True, game=game)
                         if v < value:
                             value = v
                             x = i
