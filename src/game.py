@@ -14,6 +14,7 @@ class Game:
     # - the maximum allowed time (in seconds) for your program to return a move (t)
     # - a Boolean to force the use of either minimax (FALSE) or alphabeta (TRUE) (a)
     # - the play modes - H-H, H-AI, AI-H and AI-AI (pm)
+    # - if play modes involve AI, then allow picking heurisitic algo
     def __init__(self,
                  board_dimension=3,
                  block_number: int = 0,
@@ -28,6 +29,7 @@ class Game:
         self.player_turn = None
         self.current_state = []
         self.initialize_game()
+        self._search_algo = self.initialize_search_algorithm()
 
     def initialize_game(self):
         for i in range(self._board_dimension):
@@ -35,6 +37,15 @@ class Game:
 
         # X always starts
         self.player_turn = 'X'
+
+    def initialize_search_algorithm(self):
+        e1 = SimpleHeuristic(self.current_state)
+        e2 = ComplexHeuristic(self.current_state, self._winning_line_size)
+        search_algo = SearchAlgorithm(
+            model=0,
+            e1=e1,
+            e2=e2)
+        return search_algo
 
     def add_blocks(self):
         for coordinates in self._block_positions:
@@ -154,15 +165,8 @@ class Game:
             self.current_state[x][y] = self.player_turn
             self.switch_player()
 
-    def _win_in_vertical_board_segment(self, x) -> str:
-        for i in range(self._board_dimension - self._winning_line_size):
-            end_segment = i + self._winning_line_size
-            # Segment contains only
-            if all(element == self.current_state[x][i] for element in self.current_state[x][i:end_segment]):
-                return self.current_state[x][i]
-        return ''
-
-    def check_diagonal_board_win(self, board, success_factor):
+    @staticmethod
+    def check_diagonal_board_win(board, success_factor):
         length = len(board)
         x_expected_winning_criteria = 'X' * success_factor
         o_expected_winning_criteria = 'O' * success_factor
@@ -203,7 +207,8 @@ class Game:
             elif o_expected_winning_criteria in target_diagonal:
                 return 'O'
 
-    def check_vertical_board_win(self, board, success_factor) -> str:
+    @staticmethod
+    def check_vertical_board_win(board, success_factor) -> str:
         x_expected_winning_criteria = 'X' * success_factor
         o_expected_winning_criteria = 'O' * success_factor
         for column in range(len(board)):
@@ -215,7 +220,8 @@ class Game:
             elif o_expected_winning_criteria in target_column:
                 return 'O'
 
-    def check_horizontal_win(self, board, success_factor) -> str:
+    @staticmethod
+    def check_horizontal_win(board, success_factor) -> str:
         x_expected_winning_criteria = 'X' * success_factor
         o_expected_winning_criteria = 'O' * success_factor
         for row in range(len(board) - 1):
@@ -224,7 +230,6 @@ class Game:
                 return 'X'
             elif o_expected_winning_criteria in target_row:
                 return 'O'
-
 
 def main():
     g = Game(board_dimension=5, block_positions=[(0, 1), (0, 2)])
