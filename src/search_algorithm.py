@@ -1,5 +1,4 @@
 from base_heuristic import BaseHeuristic
-from game import Game
 
 
 class SearchAlgorithm:
@@ -19,7 +18,7 @@ class SearchAlgorithm:
         self._e1 = e1
         self._e2 = e2
 
-    def evaluate(self, max: bool, game: Game):
+    def evaluate(self, max: bool, game):
         if self.model == self.MINIMAX:
             return self._evaluate_minimax(max, game)
         else:
@@ -27,7 +26,7 @@ class SearchAlgorithm:
 
     # TODO: return (value, x, y) of optimal position using euristics
     # XXX: Not tested yet (based on skeleton-tictactoe)
-    def _evaluate_minimax(self, max: bool, game: Game):
+    def _evaluate_minimax(self, max: bool, game):
         value = 2
         if max:
             value = -2
@@ -62,7 +61,7 @@ class SearchAlgorithm:
 
     # TODO: return (value, x, y) of optimal position using euristics
     # XXX: Not tested yet (based on skeleton-tictactoe)
-    def _evaluate_alpha_beta(self, max: bool, game: Game, alpha=-2, beta=2):
+    def _evaluate_alpha_beta(self, max: bool, game, alpha=-2, beta=2):
         value = 2
         if max:
             value = -2

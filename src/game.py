@@ -1,8 +1,8 @@
 import time
-from search_algorithm import SearchAlgorithm
 from simple_heuristic import SimpleHeuristic
 from complex_heuristic import ComplexHeuristic
-from base_heuristic import BaseHeuristic
+from search_algorithm import SearchAlgorithm
+
 
 
 class Game:
@@ -38,6 +38,7 @@ class Game:
         # X always starts
         self.player_turn = 'X'
 
+    # TODO: Add picking heuristic types of e1 & e2
     def initialize_search_algorithm(self):
         e1 = SimpleHeuristic()
         e2 = ComplexHeuristic(self._winning_line_size)
