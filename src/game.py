@@ -9,29 +9,44 @@ class Game:
     HUMAN = 0
     AI = 1
 
-    # TODO: Add following parameters:
-    # - the maximum depth of the adversarial search for player 1 and for player 2 (d1, d2)
-    # - the maximum allowed time (in seconds) for your program to return a move (t)
-    # - a Boolean to force the use of either minimax (FALSE) or alphabeta (TRUE) (a)
-    # - the play modes - H-H, H-AI, AI-H and AI-AI (pm)
-    # - if play modes involve AI, then allow picking heurisitic algo
+    # TODO: Randomize block positions (use functions, which is called in init)
+    # - param model_type: minimax (FALSE) or alphabeta (TRUE)
+    # - param play_mode: H-H=0, H-AI=1, AI-H=2 and AI-AI=3 (pm)
+    # - param p1_h_mode: if p1 is AI then simple heuristic (TRUE) or complex (FALSE)
+    # - param p2_h_mode: if p2 is AI then simple heuristic (TRUE) or complex (FALSE)
     def __init__(self,
                  board_dimension=3,
                  block_number: int = 0,
                  block_positions: list = None,
                  winning_line_size=3,
-                 recommend=True):
+                 d1=3,
+                 d2=3,
+                 t=20,
+                 model_type=True,
+                 play_mode=0,
+                 p1_h_mode=None,
+                 p2_h_mode=None,
+                 recommend=False):
         if winning_line_size > board_dimension:
             raise ValueError("Winning line size can't be greater that board dimension")
         self._board_dimension = board_dimension
         self._block_number = block_number
+
         self._block_positions = block_positions
         self._winning_line_size = winning_line_size
+        self._play_mode = play_mode
         self.recommend = recommend
         self.player_turn = None
         self.current_state = []
         self.initialize_game()
-        self._search_algo = self.initialize_search_algorithm()
+        self._search_algo = self.initialize_search_algorithm(
+            d1=d1,
+            d2=d2,
+            t=t,
+            model_type=model_type,
+            p1_h_mode=p1_h_mode,
+            p2_h_mode=p2_h_mode
+        )
 
     def initialize_game(self):
         for i in range(self._board_dimension):
@@ -41,13 +56,25 @@ class Game:
         self.player_turn = 'X'
 
     # TODO: Add picking heuristic types of e1 & e2
-    def initialize_search_algorithm(self):
+    def initialize_search_algorithm(self,
+                                    d1: int,
+                                    d2: int,
+                                    t: int,
+                                    model_type: bool,
+                                    p1_h_mode: bool,
+                                    p2_h_mode: bool):
         e1 = SimpleHeuristic()
         e2 = ComplexHeuristic(self._winning_line_size)
         search_algo = SearchAlgorithm(
-            model=0,
             e1=e1,
-            e2=e2)
+            e2=e2,
+            d1=d1,
+            d2=d2,
+            t=t,
+            model_type=model_type,
+            p1_h_mode=p1_h_mode,
+            p2_h_mode=p2_h_mode
+        )
         return search_algo
 
     def add_blocks(self):
@@ -130,6 +157,7 @@ class Game:
             self.player_turn = 'X'
         return self.player_turn
 
+    # TODO: Implement _play_mode functionality
     # XXX: Uncomment when AI added components
     def play(self,
              player_x=None,
@@ -238,9 +266,83 @@ class Game:
             elif o_expected_winning_criteria in target_row:
                 return 'O'
 
+# XXX: Maybe encapsulate parameter choice in function
+# TODO: Check for correct in input
+
 def main():
-    g = Game(board_dimension=5, block_positions=[(0, 1), (0, 2)])
-    g.play()
+    print("Choose your game parameters")
+
+    board_dimension = int(input("Enter board size: "))
+    block_number = int(input("Enter the number of blocks: "))
+    winning_line_size = int(input("Enter the winning line size: "))
+
+    print("Play modes:")
+    print("H-H: 0")
+    print("H-AI: 1")
+    print("AI-H: 2")
+    print("AI-AI: 3")
+    play_mode = int(input("Enter the play mode (0-3): "))
+
+    recommend = False
+    if play_mode < 3:
+        recommend_answer = input("Do you wish to get move recommendations (y/N)? ")
+        if recommend_answer.lower() == "y":
+            recommend = True
+        elif recommend_answer.lower() == "n":
+            recommend = False
+
+    if not recommend and play_mode == 0:
+        g = Game(
+            board_dimension=board_dimension,
+            block_number=block_number,
+            winning_line_size=winning_line_size,
+            play_mode=play_mode,
+            recommend=recommend
+        )
+        g.play()
+
+    # TODO: If  there is time, add removing recommendation for play_mode = 1 & 2
+    else:
+        d1 = int(input("Enter search depth for player 1 (AI): "))
+        d2 = int(input("Enter search depth for player 2 (AI): "))
+
+        t = int(input("Enter search algorithm timeout: "))
+
+        model_type_answer = input("Do you wish to use an alpha-beta search (y/N)? ")
+        model_type = True
+        if model_type_answer.lower() == "y":
+            model_type = True
+        elif model_type_answer.lower() == "n":
+            model_type = False
+
+        h_type_answer = input("Do you wish to use a simple heuristic for player 1 (y/N)? ")
+        p1_h_mode = True
+        if h_type_answer.lower() == "y":
+            p1_h_mode = True
+        elif h_type_answer.lower() == "n":
+            p1_h_mode = False
+
+        h_type_answer = input("Do you wish to use a simple heuristic for player 2 (y/N)? ")
+        p2_h_mode = True
+        if h_type_answer.lower() == "y":
+            p2_h_mode = True
+        elif h_type_answer.lower() == "n":
+            p2_h_mode = False
+
+        g = Game(
+            board_dimension=board_dimension,
+            block_number=block_number,
+            winning_line_size=winning_line_size,
+            play_mode=play_mode,
+            d1=d1,
+            d2=d2,
+            t=t,
+            model_type=model_type,
+            p1_h_mode=p1_h_mode,
+            p2_h_mode=p2_h_mode,
+            recommend=recommend
+        )
+        g.play()
 
 
 if __name__ == "__main__":
