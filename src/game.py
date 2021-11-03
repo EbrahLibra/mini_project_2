@@ -21,6 +21,8 @@ class Game:
                  block_positions: list = None,
                  winning_line_size=3,
                  recommend=True):
+        if winning_line_size > board_dimension:
+            raise ValueError("Winning line size can't be greater that board dimension")
         self._board_dimension = board_dimension
         self._block_number = block_number
         self._block_positions = block_positions
