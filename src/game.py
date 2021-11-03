@@ -55,8 +55,9 @@ class Game:
             self.current_state[coordinates[0]][coordinates[1]] = 'B'
 
     def draw_board(self):
+        if self._block_positions is not None:
+            self.add_blocks()
         print()
-        self.add_blocks()
         print("Current board state:")
         for y in range(self._board_dimension):
             for x in range(self._board_dimension):
