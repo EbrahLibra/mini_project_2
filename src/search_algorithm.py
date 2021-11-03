@@ -12,8 +12,6 @@ class SearchAlgorithm:
                  d2: int,
                  t: int,
                  model_type: bool,
-                 p1_h_mode: bool,
-                 p2_h_mode: bool,
                  ):
         self._model_type = model_type
         self._e1 = e1
@@ -21,8 +19,6 @@ class SearchAlgorithm:
         self._d1 = d1
         self._d2 = d2
         self._t = t
-        self._p1_h_mode = p1_h_mode
-        self._p2_h_mode = p2_h_mode
 
     def evaluate(self, max: bool, game):
         if not self._model_type:

@@ -55,7 +55,6 @@ class Game:
         # X always starts
         self.player_turn = 'X'
 
-    # TODO: Add picking heuristic types of e1 & e2
     def initialize_search_algorithm(self,
                                     d1: int,
                                     d2: int,
@@ -63,8 +62,15 @@ class Game:
                                     model_type: bool,
                                     p1_h_mode: bool,
                                     p2_h_mode: bool):
-        e1 = SimpleHeuristic()
-        e2 = ComplexHeuristic(self._winning_line_size)
+        if p1_h_mode:
+            e1 = SimpleHeuristic()
+        else:
+            e1 = ComplexHeuristic(self._winning_line_size)
+        if p2_h_mode:
+            e2 = SimpleHeuristic()
+        else:
+            e2 = ComplexHeuristic(self._winning_line_size)
+
         search_algo = SearchAlgorithm(
             e1=e1,
             e2=e2,
@@ -72,8 +78,6 @@ class Game:
             d2=d2,
             t=t,
             model_type=model_type,
-            p1_h_mode=p1_h_mode,
-            p2_h_mode=p2_h_mode
         )
         return search_algo
 
