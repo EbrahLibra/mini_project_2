@@ -231,7 +231,7 @@ class Game:
     def check_horizontal_win(board, success_factor) -> str:
         x_expected_winning_criteria = 'X' * success_factor
         o_expected_winning_criteria = 'O' * success_factor
-        for row in range(len(board) - 1):
+        for row in range(len(board)):
             target_row = ''.join(board[row])
             if x_expected_winning_criteria in target_row:
                 return 'X'
