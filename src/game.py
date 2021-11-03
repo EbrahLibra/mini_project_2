@@ -178,37 +178,41 @@ class Game:
             for row, row_list in enumerate(board):
                 if 0 <= column + row < length:
                     target_diagonal += row_list[column + row]
-            if x_expected_winning_criteria in target_diagonal:
-                return 'X'
-            elif o_expected_winning_criteria in target_diagonal:
-                return 'O'
+            if len(target_diagonal) >= success_factor:
+                if x_expected_winning_criteria in target_diagonal:
+                    return 'X'
+                elif o_expected_winning_criteria in target_diagonal:
+                    return 'O'
         for column in reversed(range(-(length - 1), 1)):
             target_diagonal = ''
             for row, row_list in enumerate(board):
                 if 0 <= column + row < length:
                     target_diagonal += row_list[column + row]
-            if x_expected_winning_criteria in target_diagonal:
-                return 'X'
-            elif o_expected_winning_criteria in target_diagonal:
-                return 'O'
+            if len(target_diagonal) >= success_factor:
+                if x_expected_winning_criteria in target_diagonal:
+                    return 'X'
+                elif o_expected_winning_criteria in target_diagonal:
+                    return 'O'
         for column in reversed(range(length)):
             target_diagonal = ''
             for row, row_list in enumerate(board):
                 if 0 <= column - row < length:
                     target_diagonal += row_list[column - row]
-            if x_expected_winning_criteria in target_diagonal:
-                return 'X'
-            elif o_expected_winning_criteria in target_diagonal:
-                return 'O'
+            if len(target_diagonal) >= success_factor:
+                if x_expected_winning_criteria in target_diagonal:
+                    return 'X'
+                elif o_expected_winning_criteria in target_diagonal:
+                    return 'O'
         for column in range(1, length):
             target_diagonal = ''
             for row, row_list in enumerate(reversed(board)):
                 if 0 <= column + row < length:
                     target_diagonal += row_list[column + row]
-            if x_expected_winning_criteria in target_diagonal:
-                return 'X'
-            elif o_expected_winning_criteria in target_diagonal:
-                return 'O'
+            if len(target_diagonal) >= success_factor:
+                if x_expected_winning_criteria in target_diagonal:
+                    return 'X'
+                elif o_expected_winning_criteria in target_diagonal:
+                    return 'O'
 
     @staticmethod
     def check_vertical_board_win(board, success_factor) -> str:
