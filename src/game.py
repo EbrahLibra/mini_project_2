@@ -364,10 +364,10 @@ def main():
 
     # TODO: If  there is time, add removing recommendation for play_mode = 1 & 2
     else:
-        d1 = int(input("Enter search depth for player 1 (AI): "))
-        d2 = int(input("Enter search depth for player 2 (AI): "))
+        d1 = try_int(input("Enter search depth for player 1 (AI): "))
+        d2 = try_int(input("Enter search depth for player 2 (AI): "))
 
-        t = int(input("Enter search algorithm timeout: "))
+        t = try_int(input("Enter search algorithm timeout: "))
 
         model_type_answer = input("Do you wish to use an alpha-beta search (y/N)? ")
         model_type = True
