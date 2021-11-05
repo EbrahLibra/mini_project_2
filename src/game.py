@@ -2,14 +2,13 @@ import time
 from simple_heuristic import SimpleHeuristic
 from complex_heuristic import ComplexHeuristic
 from search_algorithm import SearchAlgorithm
-
+import random
 
 
 class Game:
     HUMAN = 0
     AI = 1
 
-    # TODO: Randomize block positions (use functions, which is called in init)
     # - param model_type: minimax (FALSE) or alphabeta (TRUE)
     # - param play_mode: H-H=0, H-AI=1, AI-H=2 and AI-AI=3 (pm)
     # - param p1_h_mode: if p1 is AI then simple heuristic (TRUE) or complex (FALSE)
@@ -31,7 +30,6 @@ class Game:
             raise ValueError("Winning line size can't be greater that board dimension")
         self._board_dimension = board_dimension
         self._block_number = block_number
-
         self._block_positions = block_positions
         self._winning_line_size = winning_line_size
         self._play_mode = play_mode
@@ -82,11 +80,17 @@ class Game:
         return search_algo
 
     def add_blocks(self):
+        if self._block_positions is None:
+            self._block_positions = []
+            while len(self._block_positions) < self._block_number:
+                dimension = (random.randint(0, self._board_dimension-1), random.randint(0, self._board_dimension-1))
+                if dimension not in self._block_positions:
+                    self._block_positions.append(dimension)
         for coordinates in self._block_positions:
-            self.current_state[coordinates[0]][coordinates[1]] = 'B'
+            self.current_state[coordinates[1]][coordinates[0]] = 'B'
 
     def draw_board(self):
-        if self._block_positions is not None:
+        if self._block_number:
             self.add_blocks()
         print()
         print("Current board state:")
@@ -270,22 +274,74 @@ class Game:
             elif o_expected_winning_criteria in target_row:
                 return 'O'
 
+
 # XXX: Maybe encapsulate parameter choice in function
 # TODO: Check for correct in input
+def try_int(user_input):
+    try:
+        return int(user_input)
+    except ValueError:
+        print("Please, enter an integer value!")
+        return None
+
+
+def input_block_positions(number_of_blocks, board_dimensions):
+    demo_board = []
+    row = []
+    blocks_positions = []
+    for i in range(1, board_dimensions * board_dimensions + 1):
+        row.append(i)
+        if len(row) >= board_dimensions:
+            demo_board.append(tuple(row))
+            row = []
+    block_position = None
+    while block_position is None \
+            or (block_position if block_position is not None else board_dimensions + 1) > board_dimensions * board_dimensions + 1 \
+            or len(blocks_positions) < number_of_blocks:
+        for row in demo_board:
+            print(row)
+        block_position = try_int(input(f"Please, choose the block positions for block number {len(blocks_positions) + 1} from the board:"))
+        for row in demo_board:
+            if block_position in row:
+                position = (demo_board.index(row), row.index(block_position))
+                if position not in blocks_positions:
+                    blocks_positions.append(position)
+    print(blocks_positions)
+    return blocks_positions
+
 
 def main():
     print("Choose your game parameters")
+    board_dimension = None
+    while board_dimension is None:
+        board_dimension = try_int(input("Enter board size: "))
+    block_number = None
+    while block_number is None:
+        block_number = try_int(input("Enter the number of blocks: "))
 
-    board_dimension = int(input("Enter board size: "))
-    block_number = int(input("Enter the number of blocks: "))
-    winning_line_size = int(input("Enter the winning line size: "))
+    random_approval = None
+    random_blocks_positions_answer = input("Do you wish to have randomize blocks positions (y/N)? ")
+    if random_blocks_positions_answer.lower() == "y":
+        random_approval = True
+    elif random_blocks_positions_answer.lower() == "n":
+        random_approval = False
+
+    block_positions = None
+    if not random_approval:
+        block_positions = input_block_positions(block_number, board_dimension)
+
+    winning_line_size = None
+    while not winning_line_size:
+        winning_line_size = try_int(input("Enter the winning line size: "))
 
     print("Play modes:")
     print("H-H: 0")
     print("H-AI: 1")
     print("AI-H: 2")
     print("AI-AI: 3")
-    play_mode = int(input("Enter the play mode (0-3): "))
+    play_mode = None
+    while not play_mode:
+        play_mode = try_int(input("Enter the play mode (0-3): "))
 
     recommend = False
     if play_mode < 3:
@@ -299,6 +355,7 @@ def main():
         g = Game(
             board_dimension=board_dimension,
             block_number=block_number,
+            block_positions=block_positions,
             winning_line_size=winning_line_size,
             play_mode=play_mode,
             recommend=recommend
@@ -335,6 +392,7 @@ def main():
 
         g = Game(
             board_dimension=board_dimension,
+            block_positions=block_positions,
             block_number=block_number,
             winning_line_size=winning_line_size,
             play_mode=play_mode,
