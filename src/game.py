@@ -32,7 +32,20 @@ class Game:
         self._block_number = block_number
         self._block_positions = block_positions
         self._winning_line_size = winning_line_size
-        self._play_mode = play_mode
+        if play_mode == 0:
+            self.player_x = self.HUMAN
+            self.player_o = self.HUMAN
+        elif play_mode == 1:
+            self.player_x = self.HUMAN
+            self.player_o = self.AI
+        elif play_mode == 2:
+            self.player_x = self.AI
+            self.player_o = self.HUMAN
+        elif play_mode == 3:
+            self.player_x = self.AI
+            self.player_o = self.AI
+        else:
+            raise ValueError("No such mode available")
         self.recommend = recommend
         self.player_turn = None
         self.current_state = []
@@ -165,7 +178,7 @@ class Game:
             self.player_turn = 'X'
         return self.player_turn
 
-    # TODO: Implement _play_mode functionality
+
     # XXX: Uncomment when AI added components
     def play(self,
              player_x=None,
@@ -276,7 +289,6 @@ class Game:
 
 
 # XXX: Maybe encapsulate parameter choice in function
-# TODO: Check for correct in input
 def try_int(user_input):
     try:
         return int(user_input)
