@@ -96,7 +96,7 @@ class Game:
         if self._block_positions is None:
             self._block_positions = []
             while len(self._block_positions) < self._block_number:
-                dimension = (random.randint(0, self._board_dimension-1), random.randint(0, self._board_dimension-1))
+                dimension = (random.randint(0, self._board_dimension - 1), random.randint(0, self._board_dimension - 1))
                 if dimension not in self._block_positions:
                     self._block_positions.append(dimension)
         for coordinates in self._block_positions:
@@ -107,22 +107,33 @@ class Game:
             self.add_blocks()
         print()
         print("Current board state:")
-        for y in range(self._board_dimension):
-            for x in range(self._board_dimension):
-                print(F'{self.current_state[x][y]}', end="")
+        for y in range(-1, len(self.current_state)):
+            if y not in [-1, -2]:
+                print(chr(65 + y), end="\t")
+            elif y == -1:
+                print(end="AZ#\t")
+            for x in range(len(self.current_state)):
+                if y not in [-1, -2]:
+                    print(F'{self.current_state[y][x]}', end="\t")
+                elif y == -1:
+                    print(x, end="\t")
             print()
-        print()
 
     # 'B' is for a block at that position
     def is_valid(self, px, py):
-        if px < 0 or px >= self._board_dimension or py < 0 or py >= self._board_dimension:
+        try:
+            if ord(px) not in range(65, 91) and ord(px) not in range(97, 123):
+                return False
+            if int(py) < 0 or int(py) >= self._board_dimension:
+                return False
+            elif self.current_state[ord(px) - 65 if ord(px) in range(65, 90) else ord(px) - 97][int(py)] != '.':
+                return False
+            elif self.current_state[ord(px) - 65 if ord(px) in range(65, 90) else ord(px) - 97][int(py)] == 'B':
+                return False
+            else:
+                return True
+        except ValueError:
             return False
-        elif self.current_state[px][py] != '.':
-            return False
-        elif self.current_state[px][py] == 'B':
-            return False
-        else:
-            return True
 
     # Returns . if tie, X if X wins, 0 if 0 wins
     def is_end(self) -> str:
@@ -146,30 +157,15 @@ class Game:
 
     def input_move(self):
         while True:
-            print(F'Player {self.player_turn}, enter your move:')
-            entry = input('enter the x coordinate: ')
-            while not self.is_integer(entry):
-                entry = input('Please, enter an integer value! waiting:')
-            else:
-                px = int(entry)
-            entry = input('enter the y coordinate:')
-            while not self.is_integer(entry):
-                entry = input('Please, enter an integer value! waiting:')
-            else:
-                py = int(entry)
-            if self.is_valid(px, py):
-                return (px, py)
-            else:
+            entry = input(F'Player {self.player_turn}, enter your move:')
+            try:
+                split = entry.split(" ")
+                if self.is_valid(split[0], split[1]):
+                    return ord(split[0]) - 65 if ord(split[0]) in range(65, 90) else ord(split[0]) - 97, int(split[1])
+                else:
+                    print('The move is not valid! Try again.')
+            except (ValueError, IndexError):
                 print('The move is not valid! Try again.')
-
-    def is_integer(self, value):
-        isInteger = False
-        try:
-            value = int(value)
-            isInteger = True
-        except ValueError:
-            pass
-        return isInteger
 
     def switch_player(self):
         if self.player_turn == 'X':
@@ -177,7 +173,6 @@ class Game:
         elif self.player_turn == 'O':
             self.player_turn = 'X'
         return self.player_turn
-
 
     # XXX: Uncomment when AI added components
     def play(self,
@@ -294,6 +289,14 @@ def try_int(user_input):
         return int(user_input)
     except ValueError:
         print("Please, enter an integer value!")
+        return None
+
+
+def try_ord(user_input):
+    try:
+        return ord(user_input)
+    except ValueError:
+        print("Please, enter a single character!")
         return None
 
 
