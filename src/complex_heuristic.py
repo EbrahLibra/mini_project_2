@@ -13,7 +13,8 @@ class ComplexHeuristic(BaseHeuristic):
     """
     :return: difference number of options for both players
     """
-    def calculate_value(self, board) -> int:
+
+    def calculate_value(self, board, max_turn=False) -> int:
         # diagonal analysis
         length = len(board)
         x_expected_winning_criteria = 'X' * self._success_factor
@@ -85,4 +86,7 @@ class ComplexHeuristic(BaseHeuristic):
         total_x_n_options = x_diagonal_chances + x_vertical_chances + x_horizontal_chances
         total_o_n_options = o_diagonal_chances + o_vertical_chances + o_horizontal_chances
 
-        return total_x_n_options - total_o_n_options
+        if max_turn:
+            return -(total_x_n_options - total_o_n_options)
+        else:
+            return total_x_n_options - total_o_n_options
