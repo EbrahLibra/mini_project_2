@@ -50,10 +50,13 @@ class SearchAlgorithm:
     # XXX: Not tested yet (based on skeleton-tictactoe)
     def _evaluate_minimax(self, max: bool, game, depth, estimation_function):
 
-        value = estimation_function.calculate_value(game.current_state)
+        value = estimation_function.calculate_value(
+            game=game,
+            max_turn=max
+        )
 
         if depth == 0:
-            return (value, -1, -1)
+            return (value, None, None)
 
         x = None
         y = None
@@ -97,19 +100,24 @@ class SearchAlgorithm:
     # XXX: Not tested yet (based on skeleton-tictactoe)
     def _evaluate_alpha_beta(self, max: bool, game, depth, estimation_function, alpha=-2, beta=2):
 
-        value = estimation_function.calculate_value(game.current_state)
+        value = estimation_function.calculate_value(
+            game=game,
+            max_turn=max
+        )
 
         if depth == 0:
-            return (value, -1, -1)
+            return (value, None, None)
 
         x = None
         y = None
 
         result = game.is_end()
+        # TODO: Find winning value that makes sense (
+        #  maybe normalize heuristics to return values between -1 and 1)
         if result == 'X':
-            return (-1, x, y)
+            return (-10000, x, y)
         elif result == 'O':
-            return (1, x, y)
+            return (10000, x, y)
         elif result == '.':
             return (0, x, y)
 

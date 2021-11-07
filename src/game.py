@@ -31,7 +31,7 @@ class Game:
         self._board_dimension = board_dimension
         self._block_number = block_number
         self._block_positions = block_positions
-        self._winning_line_size = winning_line_size
+        self.winning_line_size = winning_line_size
         if play_mode == 0:
             self.player_x = self.HUMAN
             self.player_o = self.HUMAN
@@ -76,11 +76,11 @@ class Game:
         if p1_h_mode:
             e1 = SimpleHeuristic()
         else:
-            e1 = ComplexHeuristic(self._winning_line_size)
+            e1 = ComplexHeuristic()
         if p2_h_mode:
             e2 = SimpleHeuristic()
         else:
-            e2 = ComplexHeuristic(self._winning_line_size)
+            e2 = ComplexHeuristic()
 
         search_algo = SearchAlgorithm(
             e1=e1,
@@ -137,9 +137,9 @@ class Game:
 
     # Returns . if tie, X if X wins, 0 if 0 wins
     def is_end(self) -> str:
-        winner = self.check_diagonal_board_win(self.current_state, self._winning_line_size)
-        winner = self.check_horizontal_win(self.current_state, self._winning_line_size) if winner == None else winner
-        winner = self.check_vertical_board_win(self.current_state, self._winning_line_size) if winner == None else winner
+        winner = self.check_diagonal_board_win(self.current_state, self.winning_line_size)
+        winner = self.check_horizontal_win(self.current_state, self.winning_line_size) if winner == None else winner
+        winner = self.check_vertical_board_win(self.current_state, self.winning_line_size) if winner == None else winner
         return winner
 
     def check_end(self):
@@ -174,43 +174,41 @@ class Game:
             self.player_turn = 'X'
         return self.player_turn
 
-    # XXX: Uncomment when AI added components
-    def play(self,
-             player_x=None,
-             player_o=None):
-
-        if player_x == None:
-            player_x = self.HUMAN
-
-        if player_o == None:
-            player_o = self.HUMAN
-
+    def play(self):
         while True:
             self.draw_board()
 
             if self.check_end():
                 return
 
-            # start = time.time()
-            #
-            # if self.player_turn == 'X':
-            #     (m, x, y) = self._search_algo.evaluate(game=self, max=True)
-            # else:
-            #     (m, x, y) = self._search_algo.evaluate(game=self, max=False)
-            #
-            # end = time.time()
-            (x, y) = (0, 0)
-            if (self.player_turn == 'X' and player_x == self.HUMAN) or (
-                    self.player_turn == 'O' and player_o == self.HUMAN):
-                # if self.recommend:
-                #     print(F'Evaluation time: {round(end - start, 7)}s')
-                #     print(F'Recommended move: x = {x}, y = {y}')
+            start = time.time()
+
+            if self.player_turn == 'X':
+                (m, rec_x, rec_y) = self._search_algo.evaluate(game=self, max=True)
+                (x, y) = (rec_x, rec_y)
+            else:
+                (m, rec_x, rec_y) = self._search_algo.evaluate(game=self, max=False)
+                (x, y) = (rec_x, rec_y)
+            end = time.time()
+
+            if (self.player_turn == 'X' and self.player_x == self.HUMAN) or (
+                    self.player_turn == 'O' and self.player_o == self.HUMAN):
+
+                if self.recommend:
+                    print(F'Evaluation time: {round(end - start, 7)}s')
+                    print(F'Recommended move: x = {x}, y = {y}')
+
                 (x, y) = self.input_move()
-            # if (self.player_turn == 'X' and player_x == self.AI) or (self.player_turn == 'O' and player_o == self.AI):
-            #     print(F'Evaluation time: {round(end - start, 7)}s')
-            #     print(F'Player {self.player_turn} under AI control plays: x = {x}, y = {y}')
+
+            if (self.player_turn == 'X' and self.player_x == self.AI) or \
+                    (self.player_turn == 'O' and self.player_o == self.AI):
+
+                print(F'Evaluation time: {round(end - start, 7)}s')
+                print(F'Player {self.player_turn} under AI control plays: x = {x}, y = {y}')
+
             self.current_state[x][y] = self.player_turn
             self.switch_player()
+
 
     @staticmethod
     def check_diagonal_board_win(board, success_factor):
@@ -355,7 +353,7 @@ def main():
     print("AI-H: 2")
     print("AI-AI: 3")
     play_mode = None
-    while not play_mode:
+    while play_mode is None or 0 > play_mode > 3:
         play_mode = try_int(input("Enter the play mode (0-3): "))
 
     recommend = False
@@ -367,6 +365,7 @@ def main():
             recommend = False
 
     if not recommend and play_mode == 0:
+        print("Game initialized!")
         g = Game(
             board_dimension=board_dimension,
             block_number=block_number,
@@ -405,6 +404,9 @@ def main():
         elif h_type_answer.lower() == "n":
             p2_h_mode = False
 
+        print()
+        print("Game initialized!")
+        print()
         g = Game(
             board_dimension=board_dimension,
             block_positions=block_positions,
