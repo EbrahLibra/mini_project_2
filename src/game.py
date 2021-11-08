@@ -333,7 +333,7 @@ def main():
         block_number = try_int(input("Enter the number of blocks: "))
 
     random_approval = None
-    random_blocks_positions_answer = input("Do you wish to have randomize blocks positions (y/N)? ")
+    random_blocks_positions_answer = input("Do you wish to have randomize blocks positions (y/n)? ")
     if random_blocks_positions_answer.lower() == "y":
         random_approval = True
     elif random_blocks_positions_answer.lower() == "n":
@@ -358,7 +358,7 @@ def main():
 
     recommend = False
     if play_mode < 3:
-        recommend_answer = input("Do you wish to get move recommendations (y/N)? ")
+        recommend_answer = input("Do you wish to get move recommendations (y/n)? ")
         if recommend_answer.lower() == "y":
             recommend = True
         elif recommend_answer.lower() == "n":
@@ -383,21 +383,21 @@ def main():
 
         t = try_int(input("Enter search algorithm timeout: "))
 
-        model_type_answer = input("Do you wish to use an alpha-beta search (y/N)? ")
+        model_type_answer = input("Do you wish to use an alpha-beta search (y/n)? ")
         model_type = True
         if model_type_answer.lower() == "y":
             model_type = True
         elif model_type_answer.lower() == "n":
             model_type = False
 
-        h_type_answer = input("Do you wish to use a simple heuristic for player 1 (y/N)? ")
+        h_type_answer = input("Do you wish to use a simple heuristic for player 1 (y/n)? ")
         p1_h_mode = True
         if h_type_answer.lower() == "y":
             p1_h_mode = True
         elif h_type_answer.lower() == "n":
             p1_h_mode = False
 
-        h_type_answer = input("Do you wish to use a simple heuristic for player 2 (y/N)? ")
+        h_type_answer = input("Do you wish to use a simple heuristic for player 2 (y/n)? ")
         p2_h_mode = True
         if h_type_answer.lower() == "y":
             p2_h_mode = True
