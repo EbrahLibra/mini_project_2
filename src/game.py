@@ -404,6 +404,13 @@ def main():
         elif h_type_answer.lower() == "n":
             p2_h_mode = False
 
+        # Outputting to a text file.
+        file_name = "gameTrace-" + str(board_dimension) + str(block_number) + str(winning_line_size) + str(t) + ".txt"
+        file = open(file_name, "w+")
+        board_parameters = "n=" + str(board_dimension) + " b=" + str(block_number) + " s=" + str(winning_line_size) + " t=" + str(t)
+        file.write(board_parameters)
+        file.write("\n" + str(block_positions))
+
         print()
         print("Game initialized!")
         print()
@@ -422,6 +429,9 @@ def main():
             recommend=recommend
         )
         g.play()
+
+        # closing the file.
+        file.close()
 
 
 if __name__ == "__main__":
