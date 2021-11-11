@@ -61,46 +61,13 @@ class Game:
             self.search_algorithm = self.ALPHABETA
         else:
             self.search_algorithm = self.MINIMAX
-        # self._search_algo = self.initialize_search_algorithm(
-        #     d1=d1,
-        #     d2=d2,
-        #     t=t,
-        #     model_type=model_type,
-        #     p1_h_mode=p1_h_mode,
-        #     p2_h_mode=p2_h_mode
-        # )
+        self.play(self.search_algorithm)
 
     def initialize_game(self):
         for i in range(self._board_dimension):
             self.current_state.append(['.'] * self._board_dimension)
         # X always starts
         self.player_turn = 'X'
-
-    # def initialize_search_algorithm(self,
-    #                                 d1: int,
-    #                                 d2: int,
-    #                                 t: int,
-    #                                 model_type: bool,
-    #                                 p1_h_mode: bool,
-    #                                 p2_h_mode: bool):
-    #     if p1_h_mode:
-    #         e1 = SimpleHeuristic()
-    #     else:
-    #         e1 = ComplexHeuristic()
-    #     if p2_h_mode:
-    #         e2 = SimpleHeuristic()
-    #     else:
-    #         e2 = ComplexHeuristic()
-
-    # search_algo = SearchAlgorithm(
-    #     e1=e1,
-    #     e2=e2,
-    #     d1=d1,
-    #     d2=d2,
-    #     t=t,
-    #     model_type=model_type,
-    # )
-    # return search_algo
 
     def add_blocks(self):
         if self._block_positions is None:
@@ -184,40 +151,6 @@ class Game:
             self.player_turn = 'X'
         return self.player_turn
 
-    # def play(self):
-    #     while True:
-    #         self.draw_board()
-    #
-    #         if self.check_end():
-    #             return
-    #
-    #         start = time.time()
-    #
-    #         if self.player_turn == 'X':
-    #             (m, rec_x, rec_y) = self.minimax(max=True)
-    #             (x, y) = (rec_x, rec_y)
-    #         else:
-    #             (m, rec_x, rec_y) = self.minimax(max=False)
-    #             (x, y) = (rec_x, rec_y)
-    #         end = time.time()
-    #
-    #         if (self.player_turn == 'X' and self.player_x == self.HUMAN) or (
-    #                 self.player_turn == 'O' and self.player_o == self.HUMAN):
-    #
-    #             if self.recommend:
-    #                 print(F'Evaluation time: {round(end - start, 7)}s')
-    #                 print(F'Recommended move: x = {x}, y = {y}')
-    #
-    #             (x, y) = self.input_move()
-    #
-    #         if (self.player_turn == 'X' and self.player_x == self.AI) or \
-    #                 (self.player_turn == 'O' and self.player_o == self.AI):
-    #             print(F'Evaluation time: {round(end - start, 7)}s')
-    #             print(F'Player {self.player_turn} under AI control plays: x = {x}, y = {y}')
-    #
-    #         self.current_state[x][y] = self.player_turn
-    #         self.switch_player()
-
     def play(self, search_algorithm=None):
         while True:
             self.draw_board()
@@ -226,14 +159,14 @@ class Game:
             start = time.time()
             if search_algorithm == self.MINIMAX:
                 if self.player_turn == 'X':
-                    (_, x, y) = self.minimax(max=False)
+                    (_, x, y) = self.minimax(max=False, depth=self.player_x.depth)
                 else:
-                    (_, x, y) = self.minimax(max=True)
+                    (_, x, y) = self.minimax(max=True, depth=self.player_o.depth)
             else:  # algo == self.ALPHABETA
                 if self.player_turn == 'X':
-                    (m, x, y) = self.alphabeta(max=False)
+                    (m, x, y) = self.alphabeta(max=False, depth=self.player_x.depth)
                 else:
-                    (m, x, y) = self.alphabeta(max=True)
+                    (m, x, y) = self.alphabeta(max=True, depth=self.player_o.depth)
             end = time.time()
             if (self.player_turn == 'X' and self.player_x.nature == self.HUMAN) or \
                     (self.player_turn == 'O' and self.player_o.nature == self.HUMAN):
@@ -248,47 +181,67 @@ class Game:
             self.current_state[x][y] = self.player_turn
             self.switch_player()
 
-    def minimax(self, max=False):
+    def minimax(self, depth, max=False):
         # Minimizing for 'X' and maximizing for 'O'
-        # Possible values are:
-        # -1 - win for 'X'
-        # 0  - a tie
-        # 1  - loss for 'X'
-        # We're initially setting it to 2 or -2 as worse than the worst case:
-        if self.player_turn == "X":
-            value = self.player_x.heuristic.calculate_value(self,max)
-        else:
-            value = self.player_o.heuristic.calculate_value(self,max)
-        x = None
-        y = None
-        result = self.is_end()
-        if result == 'X':
-            return -1, x, y
-        elif result == 'O':
-            return 1, x, y
-        elif result == '.':
-            return 0, x, y
-        for i in range(0, 3):
-            for j in range(0, 3):
-                if self.current_state[i][j] == '.':
-                    if max:
-                        self.current_state[i][j] = 'O'
-                        (v, _, _) = self.minimax(max=False)
-                        if v > value:
-                            value = v
-                            x = i
-                            y = j
-                    else:
-                        self.current_state[i][j] = 'X'
-                        (v, _, _) = self.minimax(max=True)
-                        if v < value:
-                            value = v
-                            x = i
-                            y = j
-                    self.current_state[i][j] = '.'
-        return (value, x, y)
 
-    def alphabeta(self, alpha=-2, beta=2, max=False):
+        best_value = None
+        best_x = None
+        best_y = None
+
+        for i in range(0, len(self.current_state)):
+            for j in range(0, len(self.current_state)):
+                if depth == 0 or self.is_end():
+                    if max:
+                        value = self.player_x.heuristic.calculate_value(self, max)
+                        if best_value is None:
+                            best_value = value
+                            best_x = i
+                            best_y = j
+                        elif value > best_value:
+                            best_value = value
+                            best_x = i
+                            best_y = j
+                    else:
+                        value = self.player_o.heuristic.calculate_value(self, max)
+                        if best_value is None:
+                            best_value = value
+                            best_x = i
+                            best_y = j
+                        elif value < best_value:
+                            best_value = value
+                            best_x = i
+                            best_y = j
+                else:
+                    if self.current_state[i][j] == '.':
+                        if max:
+                            self.current_state[i][j] = 'O'
+                            (v, _, _) = self.minimax(max=False, depth=depth-1)
+
+                            if best_value is None:
+                                best_value = v
+                                best_x = i
+                                best_y = j
+                            elif v > best_value:
+                                best_value = v
+                                best_x = i
+                                best_y = j
+                        else:
+                            self.current_state[i][j] = 'X'
+                            (v, _, _) = self.minimax(max=True, depth=depth-1)
+
+                            if best_value is None:
+                                best_value = v
+                                best_x = i
+                                best_y = j
+                            elif v < best_value:
+                                best_value = v
+                                best_x = i
+                                best_y = j
+                        self.current_state[i][j] = '.'
+
+        return best_value, best_x, best_y
+
+    def alphabeta(self, depth, alpha=-2, beta=2, max=False):
         # Minimizing for 'X' and maximizing for 'O'
         # Possible values are:
         # -1 - win for 'X'
@@ -307,8 +260,8 @@ class Game:
             return 1, x, y
         elif result == '.':
             return 0, x, y
-        for i in range(0, 3):
-            for j in range(0, 3):
+        for i in range(0, len(self.current_state)):
+            for j in range(0, len(self.current_state)):
                 if self.current_state[i][j] == '.':
                     if max:
                         self.current_state[i][j] = 'O'
@@ -502,7 +455,6 @@ def main():
             play_mode=play_mode,
             recommend=recommend
         )
-        g.play()
 
     # # TODO: If  there is time, add removing recommendation for play_mode = 1 & 2
     else:
@@ -537,14 +489,14 @@ def main():
         file = open(file_name, "w+")
         board_parameters = "n=" + str(board_dimension) + " b=" + str(block_number) + " s=" + str(winning_line_size) + " t=" + str(t)
         file.write(board_parameters)
-        file.write("\n" + str(block_positions))
+        if block_number > 0:
+            file.write("\n" + str(block_positions))
 
         print()
         print("Game initialized!")
         print()
         g = Game(
             board_dimension=board_dimension,
-            block_positions=block_positions,
             block_number=block_number,
             winning_line_size=winning_line_size,
             play_mode=play_mode,
@@ -556,7 +508,6 @@ def main():
             p2_h_mode=True,
             recommend=True
         )
-    g.play()
 
     # # closing the file.
     # file.close()
