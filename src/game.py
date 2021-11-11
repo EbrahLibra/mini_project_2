@@ -332,16 +332,17 @@ def main():
     while block_number is None:
         block_number = try_int(input("Enter the number of blocks: "))
 
-    random_approval = None
-    random_blocks_positions_answer = input("Do you wish to have randomize blocks positions (y/n)? ")
-    if random_blocks_positions_answer.lower() == "y":
-        random_approval = True
-    elif random_blocks_positions_answer.lower() == "n":
-        random_approval = False
+    if block_number != 0:
+        random_approval = None
+        random_blocks_positions_answer = input("Do you wish to have randomize blocks positions (y/N)? ")
+        if random_blocks_positions_answer.lower() == "y":
+            random_approval = True
+        elif random_blocks_positions_answer.lower() == "n":
+            random_approval = False
 
-    block_positions = None
-    if not random_approval:
-        block_positions = input_block_positions(block_number, board_dimension)
+        block_positions = None
+        if not random_approval:
+            block_positions = input_block_positions(block_number, board_dimension)
 
     winning_line_size = None
     while not winning_line_size:
