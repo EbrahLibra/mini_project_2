@@ -243,52 +243,81 @@ class Game:
 
     def alphabeta(self, depth, alpha=-2, beta=2, max=False):
         # Minimizing for 'X' and maximizing for 'O'
-        # Possible values are:
-        # -1 - win for 'X'
-        # 0  - a tie
-        # 1  - loss for 'X'
-        # We're initially setting it to 2 or -2 as worse than the worst case:
-        value = 2
-        if max:
-            value = -2
-        x = None
-        y = None
-        result = self.is_end()
-        if result == 'X':
-            return -1, x, y
-        elif result == 'O':
-            return 1, x, y
-        elif result == '.':
-            return 0, x, y
+
+        best_value = None
+        best_x = None
+        best_y = None
+
         for i in range(0, len(self.current_state)):
             for j in range(0, len(self.current_state)):
                 if self.current_state[i][j] == '.':
+                    if depth == 0 or self.is_end():
+                        if max:
+                            value = self.player_x.heuristic.calculate_value(self, max)
+                            if best_value is None:
+                                best_value = value
+                                best_x = i
+                                best_y = j
+                            elif value > best_value:
+                                best_value = value
+                                best_x = i
+                                best_y = j
+                        else:
+                            value = self.player_o.heuristic.calculate_value(self, max)
+                            if best_value is None:
+                                best_value = value
+                                best_x = i
+                                best_y = j
+                            elif value < best_value:
+                                best_value = value
+                                best_x = i
+                                best_y = j
                     if max:
                         self.current_state[i][j] = 'O'
                         (v, _, _) = self.alphabeta(alpha, beta, max=False)
-                        if v > value:
-                            value = v
-                            x = i
-                            y = j
+
+                        if best_value is None:
+                            best_value = v
+                            best_x = i
+                            best_y = j
+                        elif v > best_value:
+                            best_value = v
+                            best_x = i
+                            best_y = j
                     else:
                         self.current_state[i][j] = 'X'
                         (v, _, _) = self.alphabeta(alpha, beta, max=True)
-                        if v < value:
-                            value = v
-                            x = i
-                            y = j
+
+                        if best_value is None:
+                            best_value = v
+                            best_x = i
+                            best_y = j
+                        elif v < best_value:
+                            best_value = v
+                            best_x = i
+                            best_y = j
                     self.current_state[i][j] = '.'
+
                     if max:
-                        if value >= beta:
-                            return (value, x, y)
-                        if value > alpha:
-                            alpha = value
+                        if best_value is None:
+                            best_value = v
+                            best_x = i
+                            best_y = j
+                        if best_value >= beta:
+                            return best_value, best_x, best_y
+                        if best_value > alpha:
+                            alpha = best_value
                     else:
-                        if value <= alpha:
-                            return (value, x, y)
-                        if value < beta:
-                            beta = value
-        return (value, x, y)
+                        if best_value is None:
+                            best_value = v
+                            best_x = i
+                            best_y = j
+                        if best_value <= alpha:
+                            return best_value, best_x, best_y
+                        if best_value < beta:
+                            beta = best_value
+
+        return best_value, best_x, best_y
 
     @staticmethod
     def check_diagonal_board_win(board, success_factor):
