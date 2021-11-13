@@ -20,3 +20,4 @@ class SimpleHeuristic(BaseHeuristic):
             else:
                 return success_factor-1
 
+
