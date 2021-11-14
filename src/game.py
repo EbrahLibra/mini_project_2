@@ -71,6 +71,9 @@ class Game:
         else:
             self.search_algorithm = self.MINIMAX
 
+        self.eval_num_count = 0
+        self.tot_eval_time = 0
+        self.avg_eval_time = 0
         # Recording initial state
         file_name = "gameTrace-" + str(board_dimension) + str(block_number) + str(winning_line_size) + str(t) + ".txt"
         self.game_trace = open(file_name, "w+")
@@ -94,6 +97,7 @@ class Game:
 
         # Recording scoreboard file
         self.play(self.search_algorithm)
+
 
     def add_blocks(self):
         if self._block_positions is None:
@@ -184,6 +188,7 @@ class Game:
         while True:
             self.draw_board()
             if self.check_end():
+                self.avg_eval_time = (self.tot_eval_time / self.eval_num_count)
                 return
             start = time.time()
             if search_algorithm == self.MINIMAX:
@@ -197,6 +202,10 @@ class Game:
                 else:
                     (_, x, y) = self.alphabeta(max=True, start=start, depth=self.player_o.depth)
             end = time.time()
+
+            self.eval_num_count += 1
+            self.tot_eval_time += end-start
+
             if (self.player_turn == 'X' and self.player_x.nature == self.HUMAN) or \
                     (self.player_turn == 'O' and self.player_o.nature == self.HUMAN):
                 if self.recommend:
@@ -210,6 +219,7 @@ class Game:
                 self.game_trace.write(f"\nPlayer {self.player_turn} played: {chr(x + 65)} {y}")
             self.current_state[x][y] = self.player_turn
             self.switch_player()
+
 
     # TODO ADD to self.game_trace
     # TODO for each evaluation function call (heuristic - consider the root to be at depth 0)
@@ -519,7 +529,7 @@ def main():
             timeout = try_int(input("Enter search algorithm timeout: "))
 
         sim_count = 0
-        scoreboard = [0,0]
+        scoreboard = [0, 0]
         while sim_count<((number_of_games-1)/2):
             g = Game(
                 board_dimension=board_dimension,
@@ -579,6 +589,7 @@ def main():
                 p2_h_mode=True,
                 recommend=True
             )
+
             winner = g.winner
             if winner == "X":
                 scoreboard[1] += 1
