@@ -1,0 +1,25 @@
+Initial Configuration:
+n=3 b=0 s=3 t=2
+Game board:
+[['.', '.', '.'], ['.', '.', '.'], ['.', '.', '.']]
+
+Player X: 
+Search depth: 5
+Search algorithm: ALPHABETA
+Heuristic Function: Complex
+
+Player O: 
+Search depth: 5
+Search algorithm: ALPHABETA
+Heuristic Function: Simple
+
+Moves:
+Player X played: B 1
+Player O played: A 0
+Player X played: A 1
+Player O played: C 1
+Player X played: B 0
+Player O played: A 2
+Player X played: B 2
+
+The winner is X!
