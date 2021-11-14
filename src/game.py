@@ -2,7 +2,7 @@ import time
 from simple_heuristic import SimpleHeuristic
 from complex_heuristic import ComplexHeuristic
 from player import Player
-# from search_algorithm import SearchAlgorithm
+import numpy as np
 import random
 
 
@@ -62,7 +62,7 @@ class Game:
         self.player_turn = None
         self.current_state = []
         for i in range(self._board_dimension):
-            self.current_state.append(['.'] * self._board_dimension)
+            self.current_state = np.full((board_dimension, board_dimension), '.')
         self.player_turn = 'X'
         if self._block_number > 1:
             self.add_blocks()
@@ -143,9 +143,12 @@ class Game:
     # Returns . if tie, X if X wins, 0 if 0 wins
     def is_end(self) -> str:
         self.winner = self.check_diagonal_board_win(self.current_state, self.winning_line_size)
-        self.winner = self.check_horizontal_win(self.current_state, self.winning_line_size) if self.winner == None else self.winner
-        self.winner = self.check_vertical_board_win(self.current_state, self.winning_line_size) if self.winner == None else self.winner
-        return self.winner
+        self.winner = self.check_horizontal_win(self.current_state, self.winning_line_size) if self.winner is None else self.winner
+        self.winner = self.check_vertical_board_win(self.current_state, self.winning_line_size) if self.winner is None else self.winner
+        if self.winner:
+            return self.winner
+        elif '.' not in self.current_state:
+            return '.'
 
     def check_end(self):
         self.result = self.is_end()
@@ -155,10 +158,10 @@ class Game:
                 self.game_trace.write('\n\nThe winner is X!')
                 print('The winner is X!')
             elif self.result == 'O':
-                self.game_trace.write('\n\nThe winner is X!')
+                self.game_trace.write('\n\nThe winner is O!')
                 print('The winner is O!')
             elif self.result == '.':
-                self.game_trace.write('\n\nThe winner is X!')
+                self.game_trace.write('\n\nIt\'s a tie!')
                 print("It's a tie!")
         return self.result
 
@@ -380,72 +383,37 @@ class Game:
 
     @staticmethod
     def check_diagonal_board_win(board, success_factor):
-        length = len(board)
         x_expected_winning_criteria = 'X' * success_factor
         o_expected_winning_criteria = 'O' * success_factor
-        for column in range(1, length):
-            target_diagonal = ''
-            for row, row_list in enumerate(board):
-                if 0 <= column + row < length:
-                    target_diagonal += row_list[column + row]
-            if len(target_diagonal) >= success_factor:
-                if x_expected_winning_criteria in target_diagonal:
-                    return 'X'
-                elif o_expected_winning_criteria in target_diagonal:
-                    return 'O'
-        for column in reversed(range(-(length - 1), 1)):
-            target_diagonal = ''
-            for row, row_list in enumerate(board):
-                if 0 <= column + row < length:
-                    target_diagonal += row_list[column + row]
-            if len(target_diagonal) >= success_factor:
-                if x_expected_winning_criteria in target_diagonal:
-                    return 'X'
-                elif o_expected_winning_criteria in target_diagonal:
-                    return 'O'
-        for column in reversed(range(length)):
-            target_diagonal = ''
-            for row, row_list in enumerate(board):
-                if 0 <= column - row < length:
-                    target_diagonal += row_list[column - row]
-            if len(target_diagonal) >= success_factor:
-                if x_expected_winning_criteria in target_diagonal:
-                    return 'X'
-                elif o_expected_winning_criteria in target_diagonal:
-                    return 'O'
-        for column in range(1, length):
-            target_diagonal = ''
-            for row, row_list in enumerate(reversed(board)):
-                if 0 <= column + row < length:
-                    target_diagonal += row_list[column + row]
-            if len(target_diagonal) >= success_factor:
-                if x_expected_winning_criteria in target_diagonal:
-                    return 'X'
-                elif o_expected_winning_criteria in target_diagonal:
-                    return 'O'
+        fliplr = np.fliplr(board)
+        length = len(board)
+        for i in range(-length + success_factor, length - success_factor + 1):
+            test_diagonal = [''.join(fliplr.diagonal(i)), ''.join(board.diagonal(i))]
+            if x_expected_winning_criteria in test_diagonal:
+                return 'X'
+            if o_expected_winning_criteria in test_diagonal:
+                return 'O'
 
     @staticmethod
     def check_vertical_board_win(board, success_factor) -> str:
         x_expected_winning_criteria = 'X' * success_factor
         o_expected_winning_criteria = 'O' * success_factor
-        for column in range(len(board)):
-            target_column = ''
-            for row_list in board:
-                target_column += row_list[column]
-            if x_expected_winning_criteria in target_column:
+        for column_number in range(len(board)):
+            column = ''.join(board[:, column_number])
+            if x_expected_winning_criteria in column:
                 return 'X'
-            elif o_expected_winning_criteria in target_column:
+            if o_expected_winning_criteria in column:
                 return 'O'
 
     @staticmethod
     def check_horizontal_win(board, success_factor) -> str:
         x_expected_winning_criteria = 'X' * success_factor
         o_expected_winning_criteria = 'O' * success_factor
-        for row in range(len(board)):
-            target_row = ''.join(board[row])
-            if x_expected_winning_criteria in target_row:
+        for row_number in range(len(board)):
+            row = ''.join(board[row_number])
+            if x_expected_winning_criteria in row:
                 return 'X'
-            elif o_expected_winning_criteria in target_row:
+            elif o_expected_winning_criteria in row:
                 return 'O'
 
 
