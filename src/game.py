@@ -545,223 +545,222 @@ def input_block_positions(number_of_blocks, board_dimensions):
 
 
 def main():
-    # run_sim = False
-    # run_sim_answer = input("Do you wish to run 2xr simulations? (y/N): ")
-    # if run_sim_answer.lower() == "y":
-    #     run_sim = True
-    #
-    # if run_sim:
-    #     number_of_games = None
-    #     while number_of_games is None:
-    #         number_of_games = try_int(input("Enter the number of simulations: "))
-    #
-    #     print("Choose your game parameters")
-    #     board_dimension = None
-    #     while board_dimension is None:
-    #         board_dimension = try_int(input("Enter board size: "))
-    #
-    #     block_number = None
-    #     while block_number is None:
-    #         block_number = try_int(input("Enter the number of blocks: "))
-    #
-    #     winning_line_size = None
-    #     while not winning_line_size:
-    #         winning_line_size = try_int(input("Enter the winning line size: "))
-    #
-    #     d1 = None
-    #     d2 = None
-    #     while d1 is None and d2 is None:
-    #         d1 = try_int(input("Enter search depth for player 1 (AI): "))
-    #         d2 = try_int(input("Enter search depth for player 2 (AI): "))
-    #         if d1 < 1 or d2 < 1:
-    #             d1 = None
-    #             d2 = None
-    #
-    #     timeout = None
-    #     while timeout is None:
-    #         timeout = try_int(input("Enter search algorithm timeout: "))
-    #
-    #     sim_count = 0
-    #     scoreboard = [0, 0]
-    #     while sim_count < ((number_of_games - 1) / 2):
-    #         g = Game(
-    #             board_dimension=board_dimension,
-    #             block_number=block_number,
-    #             winning_line_size=winning_line_size,
-    #             play_mode=3,
-    #             d1=d1,
-    #             d2=d2,
-    #             t=timeout,
-    #             model_type=True,
-    #             p1_h_mode=True,
-    #             p2_h_mode=False,
-    #             recommend=True
-    #         )
-    #         winner = g.winner
-    #         if winner == "X":
-    #             scoreboard[0] += 1
-    #         elif winner == "O":
-    #             scoreboard[1] += 2
-    #
-    #         sim_count += 1
-    #
-    #     sim_count = 0
-    #
-    #     while sim_count < ((number_of_games - 1) / 2):
-    #         g = Game(
-    #             board_dimension=board_dimension,
-    #             block_number=block_number,
-    #             winning_line_size=winning_line_size,
-    #             play_mode=3,
-    #             d1=d1,
-    #             d2=d2,
-    #             t=timeout,
-    #             model_type=True,
-    #             p1_h_mode=False,
-    #             p2_h_mode=True,
-    #             recommend=True
-    #         )
-    #         winner = g.winner
-    #         if winner == "X":
-    #             scoreboard[1] += 1
-    #         elif winner == "O":
-    #             scoreboard[0] += 2
-    #         sim_count += 1
-    #
-    #     if number_of_games % 2 == 1:
-    #         g = Game(
-    #             board_dimension=board_dimension,
-    #             block_number=block_number,
-    #             winning_line_size=winning_line_size,
-    #             play_mode=3,
-    #             d1=d1,
-    #             d2=d2,
-    #             t=timeout,
-    #             model_type=True,
-    #             p1_h_mode=False,
-    #             p2_h_mode=True,
-    #             recommend=True
-    #         )
-    #
-    #         winner = g.winner
-    #         if winner == "X":
-    #             scoreboard[1] += 1
-    #         elif winner == "O":
-    #             scoreboard[0] += 2
-    #         sim_count += 1
-    #
-    #     print(scoreboard)
-    # else:
-    #     print("Choose your game parameters")
-    #     board_dimension = None
-    #     while board_dimension is None:
-    #         board_dimension = try_int(input("Enter board size: "))
-    #     block_number = None
-    #     while block_number is None:
-    #         block_number = try_int(input("Enter the number of blocks: "))
-    #
-    #     if block_number != 0:
-    #         random_approval = None
-    #         random_blocks_positions_answer = input("Do you wish to have randomize blocks positions (y/N)? ")
-    #         if random_blocks_positions_answer.lower() == "y":
-    #             random_approval = True
-    #         elif random_blocks_positions_answer.lower() == "n":
-    #             random_approval = False
-    #
-    #         block_positions = None
-    #         if not random_approval:
-    #             block_positions = input_block_positions(block_number, board_dimension)
-    #
-    #     winning_line_size = None
-    #     while not winning_line_size:
-    #         winning_line_size = try_int(input("Enter the winning line size: "))
-    #
-    #     print("Play modes:")
-    #     print("H-H: 0")
-    #     print("H-AI: 1")
-    #     print("AI-H: 2")
-    #     print("AI-AI: 3")
-    #     play_mode = None
-    #     while play_mode is None or 0 > play_mode > 3:
-    #         play_mode = try_int(input("Enter the play mode (0-3): "))
-    #
-    #     recommend = False
-    #     if play_mode < 3:
-    #         recommend_answer = input("Do you wish to get move recommendations (y/N)? ")
-    #         if recommend_answer.lower() == "y":
-    #             recommend = True
-    #         elif recommend_answer.lower() == "n":
-    #             recommend = False
-    #
-    #     if not recommend and play_mode == 0:
-    #         print("Game initialized!")
-    #         g = Game(
-    #             board_dimension=board_dimension,
-    #             block_number=block_number,
-    #             winning_line_size=winning_line_size,
-    #             play_mode=play_mode,
-    #             recommend=recommend
-    #         )
-    #
-    #     # # TODO: If  there is time, add removing recommendation for play_mode = 1 & 2
-    #     else:
-    #         d1 = try_int(input("Enter search depth for player 1 (AI): "))
-    #         d2 = try_int(input("Enter search depth for player 2 (AI): "))
-    #
-    #         timeout = try_int(input("Enter search algorithm timeout: "))
-    #
-    #         model_type_answer = input("Do you wish to use an alpha-beta search (y/N)? ")
-    #         model_type = True
-    #         if model_type_answer.lower() == "y":
-    #             model_type = True
-    #         elif model_type_answer.lower() == "n":
-    #             model_type = False
-    #
-    #         h_type_answer = input("Do you wish to use a simple heuristic for player 1 (y/N)? ")
-    #         p1_h_mode = True
-    #         if h_type_answer.lower() == "y":
-    #             p1_h_mode = True
-    #         elif h_type_answer.lower() == "n":
-    #             p1_h_mode = False
-    #
-    #         h_type_answer = input("Do you wish to use a simple heuristic for player 2 (y/N)? ")
-    #         p2_h_mode = True
-    #         if h_type_answer.lower() == "y":
-    #             p2_h_mode = True
-    #         elif h_type_answer.lower() == "n":
-    #             p2_h_mode = False
-    #
-    #         # Outputting to a text file.
-    #         file_name = "gameTrace-" + str(board_dimension) + str(block_number) + str(winning_line_size) + str(
-    #             timeout) + ".txt"
-    #         file = open(file_name, "w+")
-    #         board_parameters = "n=" + str(board_dimension) + " b=" + str(block_number) + " s=" + str(
-    #             winning_line_size) + " t=" + str(timeout)
-    #         file.write(board_parameters)
-    #         if block_number > 0:
-    #             file.write("\n" + str(block_positions))
-    #
-    #         print()
-    #         print("Game initialized!")
-    #         print()
-    g = Game(
-        board_dimension=3,
-        block_number=0,
-        winning_line_size=3,
-        play_mode=3,
-        d1=3,
-        d2=3,
-        t=10,
-        model_type=True,
-        p1_h_mode=True,
-        p2_h_mode=True,
-        recommend=True
-    )
+    run_sim = False
+    run_sim_answer = input("Do you wish to run 2xr simulations? (y/N): ")
+    if run_sim_answer.lower() == "y":
+        run_sim = True
 
+    if run_sim:
+        number_of_games = None
+        while number_of_games is None:
+            number_of_games = try_int(input("Enter the number of simulations: "))
 
-# # closing the file.
-# file.close()
+        print("Choose your game parameters")
+        board_dimension = None
+        while board_dimension is None:
+            board_dimension = try_int(input("Enter board size: "))
 
+        block_number = None
+        while block_number is None:
+            block_number = try_int(input("Enter the number of blocks: "))
+
+        winning_line_size = None
+        while not winning_line_size:
+            winning_line_size = try_int(input("Enter the winning line size: "))
+
+        d1 = None
+        d2 = None
+        while d1 is None and d2 is None:
+            d1 = try_int(input("Enter search depth for player 1 (AI): "))
+            d2 = try_int(input("Enter search depth for player 2 (AI): "))
+            if d1 < 1 or d2 < 1:
+                d1 = None
+                d2 = None
+
+        timeout = None
+        while timeout is None:
+            timeout = try_int(input("Enter search algorithm timeout: "))
+
+        sim_count = 0
+        scoreboard = [0, 0]
+        while sim_count<((number_of_games-1)/2):
+            g = Game(
+                board_dimension=board_dimension,
+                block_number=block_number,
+                winning_line_size=winning_line_size,
+                play_mode=3,
+                d1=d1,
+                d2=d2,
+                t=timeout,
+                model_type=True,
+                p1_h_mode=True,
+                p2_h_mode=False,
+                recommend=True
+            )
+            winner = g.winner
+            if winner == "X":
+                scoreboard[0] += 1
+            elif winner == "O":
+                scoreboard[1] += 2
+
+            sim_count += 1
+
+        sim_count = 0
+
+        while sim_count<((number_of_games-1)/2):
+            g = Game(
+                board_dimension=board_dimension,
+                block_number=block_number,
+                winning_line_size=winning_line_size,
+                play_mode=3,
+                d1=d1,
+                d2=d2,
+                t=timeout,
+                model_type=True,
+                p1_h_mode=False,
+                p2_h_mode=True,
+                recommend=True
+            )
+            winner = g.winner
+            if winner == "X":
+                scoreboard[1] += 1
+            elif winner == "O":
+                scoreboard[0] += 2
+            sim_count += 1
+
+        if number_of_games % 2 == 1:
+            g = Game(
+                board_dimension=board_dimension,
+                block_number=block_number,
+                winning_line_size=winning_line_size,
+                play_mode=3,
+                d1=d1,
+                d2=d2,
+                t=timeout,
+                model_type=True,
+                p1_h_mode=False,
+                p2_h_mode=True,
+                recommend=True
+            )
+
+            winner = g.winner
+            if winner == "X":
+                scoreboard[1] += 1
+            elif winner == "O":
+                scoreboard[0] += 2
+            sim_count += 1
+
+        print(scoreboard)
+    else:
+        print("Choose your game parameters")
+        board_dimension = None
+        while board_dimension is None:
+            board_dimension = try_int(input("Enter board size: "))
+        block_number = None
+        while block_number is None:
+            block_number = try_int(input("Enter the number of blocks: "))
+
+        if block_number != 0:
+            random_approval = None
+            random_blocks_positions_answer = input("Do you wish to have randomize blocks positions (y/N)? ")
+            if random_blocks_positions_answer.lower() == "y":
+                random_approval = True
+            elif random_blocks_positions_answer.lower() == "n":
+                random_approval = False
+
+            block_positions = None
+            if not random_approval:
+                block_positions = input_block_positions(block_number, board_dimension)
+
+        winning_line_size = None
+        while not winning_line_size:
+            winning_line_size = try_int(input("Enter the winning line size: "))
+
+        print("Play modes:")
+        print("H-H: 0")
+        print("H-AI: 1")
+        print("AI-H: 2")
+        print("AI-AI: 3")
+        play_mode = None
+        while play_mode is None or 0 > play_mode > 3:
+            play_mode = try_int(input("Enter the play mode (0-3): "))
+
+        recommend = False
+        if play_mode < 3:
+            recommend_answer = input("Do you wish to get move recommendations (y/N)? ")
+            if recommend_answer.lower() == "y":
+                recommend = True
+            elif recommend_answer.lower() == "n":
+                recommend = False
+
+        if not recommend and play_mode == 0:
+            print("Game initialized!")
+            g = Game(
+                board_dimension=board_dimension,
+                block_number=block_number,
+                winning_line_size=winning_line_size,
+                play_mode=play_mode,
+                recommend=recommend
+            )
+
+        # # TODO: If  there is time, add removing recommendation for play_mode = 1 & 2
+        else:
+            d1 = try_int(input("Enter search depth for player 1 (AI): "))
+            d2 = try_int(input("Enter search depth for player 2 (AI): "))
+
+            timeout = try_int(input("Enter search algorithm timeout: "))
+
+            model_type_answer = input("Do you wish to use an alpha-beta search (y/N)? ")
+            model_type = True
+            if model_type_answer.lower() == "y":
+                model_type = True
+            elif model_type_answer.lower() == "n":
+                model_type = False
+
+            h_type_answer = input("Do you wish to use a simple heuristic for player 1 (y/N)? ")
+            p1_h_mode = True
+            if h_type_answer.lower() == "y":
+                p1_h_mode = True
+            elif h_type_answer.lower() == "n":
+                p1_h_mode = False
+
+            h_type_answer = input("Do you wish to use a simple heuristic for player 2 (y/N)? ")
+            p2_h_mode = True
+            if h_type_answer.lower() == "y":
+                p2_h_mode = True
+            elif h_type_answer.lower() == "n":
+                p2_h_mode = False
+
+            # Outputting to a text file.
+            file_name = "gameTrace-" + str(board_dimension) + str(block_number) + str(winning_line_size) + str(
+                timeout) + ".txt"
+            file = open(file_name, "w+")
+            board_parameters = "n=" + str(board_dimension) + " b=" + str(block_number) + " s=" + str(
+                winning_line_size) + " t=" + str(timeout)
+            file.write(board_parameters)
+            if block_number > 0:
+                file.write("\n" + str(block_positions))
+
+            print()
+            print("Game initialized!")
+            print()
+            # TODO: Add block_positions here block number > 1
+            g = Game(
+                board_dimension=board_dimension,
+                block_number=block_number,
+                winning_line_size=winning_line_size,
+                play_mode=play_mode,
+                d1=d1,
+                d2=d2,
+                t=timeout,
+                model_type=model_type,
+                p1_h_mode=p1_h_mode,
+                p2_h_mode=p1_h_mode,
+                recommend=recommend
+            )
+
+        # # closing the file.
+        # file.close()
 
 if __name__ == "__main__":
     main()
