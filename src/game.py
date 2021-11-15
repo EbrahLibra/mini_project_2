@@ -29,7 +29,6 @@ class Game:
                  p1_h_mode=None,
                  p2_h_mode=None,
                  recommend=False):
-
         # Error checking
         if board_dimension not in range(3, 11):
             raise ValueError("Board dimension has to be between [3..10]")
@@ -74,6 +73,9 @@ class Game:
         self.eval_num_count = 0
         self.tot_eval_time = 0
         self.avg_eval_time = 0
+        self.all_stats = {}
+        self.states_depths_calls = {}
+
         # Recording initial state
         file_name = "gameTrace-" + str(board_dimension) + str(block_number) + str(winning_line_size) + str(t) + ".txt"
         self.game_trace = open(file_name, "w+")
@@ -93,11 +95,9 @@ class Game:
         self.game_trace.write("\nSearch depth: " + str(self.player_o.depth))
         self.game_trace.write("\nSearch algorithm: " + ("MINIMAX" if self.search_algorithm == self.MINIMAX else "ALPHABETA"))
         self.game_trace.write("\nHeuristic Function: " + ("Complex" if "Complex" in str(self.player_o.heuristic) else "Simple") + "\n")
-        self.game_trace.write("\nMoves:")
 
         # Recording scoreboard file
         self.play(self.search_algorithm)
-
 
     def add_blocks(self):
         if self._block_positions is None:
@@ -167,13 +167,13 @@ class Game:
 
     def input_move(self):
         while True:
-            entry = input(F'Player {self.player_turn}, enter your move:')
+            entry = input(f'Player {self.player_turn}, enter your move:')
             try:
                 split = entry.split(" ")
                 if self.is_valid(split[0], split[1]):
                     y = int(split[1])
                     x = ord(split[0]) - 65 if ord(split[0]) in range(65, 90) else ord(split[0]) - 97
-                    self.game_trace.write(f"\nPlayer {self.player_turn} played: {entry}")
+                    self.game_trace.write(f"\nPlayer {self.player_turn} plays: {entry}")
                     return x, y
                 else:
                     print('The move is not valid! Try again.')
@@ -192,6 +192,38 @@ class Game:
             self.draw_board()
             if self.check_end():
                 self.avg_eval_time = (self.tot_eval_time / self.eval_num_count)
+                self.game_trace.write(f"\nAverage evaluation time of the whole game: {self.avg_eval_time}")
+                print(f"Average evaluation time of the whole game: {self.avg_eval_time}")
+                total_number_of_states_evaluated = 0
+                total_heuristic_evaluation_time = 0
+                total_depth_averages = 0
+                total_number_of_states_evaluated_at_depth = 0
+                total_recursive_depth_average = 0
+
+                for _, move in self.all_stats.items():
+                    total_number_of_states_evaluated += move['Number of states evaluated']
+                    total_heuristic_evaluation_time += move['Heuristic evaluation time']
+                    total_depth_averages += move['Average depth']
+                    total_number_of_states_evaluated_at_depth += move['Total number of states evaluated at all depth']
+                    total_recursive_depth_average += move['Average recursion depth']
+                mean_of_depth_averages = total_depth_averages / self.eval_num_count
+                mean_of_recursive_depth_averages = total_recursive_depth_average / self.eval_num_count
+
+                print()
+                print(f"Total evaluated states {total_number_of_states_evaluated}")
+                print(f"Total heuristic evaluation time {total_heuristic_evaluation_time}")
+                print(f"Total average depth {total_depth_averages}")
+                print(f"Average average depth {mean_of_depth_averages}")
+                print(f"Total average recursive depth {mean_of_depth_averages}")
+                print(f"Average average recursive depth {mean_of_recursive_depth_averages}")
+
+                self.game_trace.write(f"\nTotal evaluated states {total_number_of_states_evaluated}")
+                self.game_trace.write(f"\nTotal heuristic evaluation time {total_heuristic_evaluation_time}")
+                self.game_trace.write(f"\nTotal depth averages  {total_depth_averages}")
+                self.game_trace.write(f"\nMean of average depth {mean_of_depth_averages}")
+                self.game_trace.write(f"\nTotal average recursive depth {total_recursive_depth_average}")
+                self.game_trace.write(f"\nMean of average recursive depth {mean_of_recursive_depth_averages}")
+
                 return
             start = time.time()
             if search_algorithm == self.MINIMAX:
@@ -207,31 +239,70 @@ class Game:
             end = time.time()
 
             self.eval_num_count += 1
-            self.tot_eval_time += end-start
+            self.tot_eval_time += end - start
 
             if (self.player_turn == 'X' and self.player_x.nature == self.HUMAN) or \
                     (self.player_turn == 'O' and self.player_o.nature == self.HUMAN):
                 if self.recommend:
-                    print(F'Evaluation time: {round(end - start, 7)}s')
-                    print(F'Recommended move: x = {x}, y = {y}')
+                    print(F'Move evaluation time: {round(end - start, 7)} s')
+                    print(F'Recommended move: x = {chr(x + 65)}, y = {y}')
+                self.game_trace.write(f"\nMove evaluation time: {round(end - start, 7)} s")
                 (x, y) = self.input_move()
             if (self.player_turn == 'X' and self.player_x.nature == self.AI) or \
                     (self.player_turn == 'O' and self.player_o.nature == self.AI):
-                print(F'Evaluation time: {round(end - start, 7)}s')
-                print(F'Player {self.player_turn} under AI control plays: x = {x}, y = {y}')
-                self.game_trace.write(f"\nPlayer {self.player_turn} played: {chr(x + 65)} {y}")
+                print(F'Move evaluation time: {round(end - start, 7)} s')
+                print(F'Player {self.player_turn} under AI control plays: x = {chr(x + 65)}, y = {y}')
+                self.game_trace.write(f"\nMove evaluation time: {round(end - start, 7)} s")
+                self.game_trace.write(f"\nPlayer {self.player_turn} plays: {chr(x + 65)} {y}")
+
             self.current_state[x][y] = self.player_turn
             self.switch_player()
 
+            self.game_trace.write(f"\n{self.current_state}")
+            print("Move stats:")
+            self.game_trace.write("\nMove stats:")
+            number_of_states_evaluated = sum([value[0] for value in self.states_depths_calls.values()])
+            print(f"\tNumber of states evaluated: {number_of_states_evaluated} states")
+            self.game_trace.write(f"\n\tNumber of states evaluated: {number_of_states_evaluated} states")
+            heuristic_evaluation_time = sum([value[1] for value in self.states_depths_calls.values()])
+            print(f"\tHeuristic evaluation time: {heuristic_evaluation_time} s")
+            self.game_trace.write(f"\n\tHeuristic evaluation time: {heuristic_evaluation_time} s")
+            s = set([value[1] for value in self.states_depths_calls.keys()])
+            average_depth = sum(s) / len(s)
+            print(f"\tAverage depth: {average_depth}")
+            self.game_trace.write(f"\n\tAverage depth: {average_depth}")
+            depths_calls = {}
+            for k, v in self.states_depths_calls.items():
+                depths_calls.update({k[1]: v[0]} if k[1] not in depths_calls else {k[1]: depths_calls[k[1]] + v[0]})
+            for depth, calls in depths_calls.items():
+                print(f"\tAt depth {depth} number of evaluations: {calls}")
+                self.game_trace.write(f"\n\tAt depth {depth} number of evaluations: {calls}")
 
-    # TODO ADD to self.game_trace
-    # TODO for each evaluation function call (heuristic - consider the root to be at depth 0)
-    # TODO 1.Time of the evaluation
-    # TODO 2.The number of states evaluated at each depth (at depth 1, at depth 2, . . .)
-    # TODO 3.For each move the average depth (AD) of the heuristic evaluation in the tree
-    # TODO The average recursion depth (ARD) at the current state (in seconds)
+            depth_count = {}
+            for state_depth in self.states_depths_calls.keys():
+                depth_count.update({state_depth[1]: 1} if state_depth[1] not in depth_count else {
+                    state_depth[1]: depth_count[state_depth[1]] + 1})
+
+            average_recursive_depth = 0
+            for depth, count in depth_count.items():
+                if depth != 0:
+                    average_recursive_depth += depth * count / depth
+
+            print(f"Average recursive depth: {average_recursive_depth}")
+            self.game_trace.write(f"\nAverage recursive depth: {average_recursive_depth}")
+
+            self.all_stats.update({self.eval_num_count: {
+                'Number of states evaluated': number_of_states_evaluated,
+                'Heuristic evaluation time': heuristic_evaluation_time,
+                'Average depth': average_depth,
+                'Total number of states evaluated at all depth': sum(depths_calls.values()),
+                'Average recursion depth': average_recursive_depth
+            }
+            })
+
     # see the example below for an explanation.
     def minimax(self, depth, start, max=False):
+
         end = time.time()
         while True:
             # Minimizing for 'X' and maximizing for 'O'
@@ -242,6 +313,7 @@ class Game:
 
             for i in range(0, len(self.current_state)):
                 for j in range(0, len(self.current_state)):
+                    evaluation_start = time.time()
                     if end - start > self.timeout:
                         value = self.player_x.heuristic.calculate_value(self, max)
                         if best_value is None:
@@ -296,6 +368,12 @@ class Game:
                                     best_x = i
                                     best_y = j
                             self.current_state[i][j] = '.'
+                    evaluation_end = time.time()
+                    current = str(self.current_state)
+                    key = (current, depth)
+                    self.states_depths_calls.update(
+                        {key: (1, evaluation_end - evaluation_start)} if key not in self.states_depths_calls
+                        else {key: (self.states_depths_calls[key][0] + 1, evaluation_end - evaluation_start)})
             return best_value, best_x, best_y
 
     def alphabeta(self, depth, start, alpha=-10000, beta=10000, max=False):
@@ -308,6 +386,7 @@ class Game:
 
             for i in range(0, len(self.current_state)):
                 for j in range(0, len(self.current_state)):
+                    evaluation_start = time.time()
                     if end - start > self.timeout:
                         value = self.player_x.heuristic.calculate_value(self, max)
                         if best_value is None:
@@ -379,6 +458,12 @@ class Game:
                                     best_y = j
 
                             self.current_state[i][j] = '.'
+                    evaluation_end = time.time()
+                    current = str(self.current_state)
+                    key = (current, depth)
+                    self.states_depths_calls.update(
+                        {key: (1, evaluation_end - evaluation_start)} if key not in self.states_depths_calls
+                        else {key: (self.states_depths_calls[key][0] + 1, evaluation_end - evaluation_start)})
             return best_value, best_x, best_y
 
     @staticmethod
@@ -460,222 +545,222 @@ def input_block_positions(number_of_blocks, board_dimensions):
 
 
 def main():
-    run_sim = False
-    run_sim_answer = input("Do you wish to run 2xr simulations? (y/N): ")
-    if run_sim_answer.lower() == "y":
-        run_sim = True
+    # run_sim = False
+    # run_sim_answer = input("Do you wish to run 2xr simulations? (y/N): ")
+    # if run_sim_answer.lower() == "y":
+    #     run_sim = True
+    #
+    # if run_sim:
+    #     number_of_games = None
+    #     while number_of_games is None:
+    #         number_of_games = try_int(input("Enter the number of simulations: "))
+    #
+    #     print("Choose your game parameters")
+    #     board_dimension = None
+    #     while board_dimension is None:
+    #         board_dimension = try_int(input("Enter board size: "))
+    #
+    #     block_number = None
+    #     while block_number is None:
+    #         block_number = try_int(input("Enter the number of blocks: "))
+    #
+    #     winning_line_size = None
+    #     while not winning_line_size:
+    #         winning_line_size = try_int(input("Enter the winning line size: "))
+    #
+    #     d1 = None
+    #     d2 = None
+    #     while d1 is None and d2 is None:
+    #         d1 = try_int(input("Enter search depth for player 1 (AI): "))
+    #         d2 = try_int(input("Enter search depth for player 2 (AI): "))
+    #         if d1 < 1 or d2 < 1:
+    #             d1 = None
+    #             d2 = None
+    #
+    #     timeout = None
+    #     while timeout is None:
+    #         timeout = try_int(input("Enter search algorithm timeout: "))
+    #
+    #     sim_count = 0
+    #     scoreboard = [0, 0]
+    #     while sim_count < ((number_of_games - 1) / 2):
+    #         g = Game(
+    #             board_dimension=board_dimension,
+    #             block_number=block_number,
+    #             winning_line_size=winning_line_size,
+    #             play_mode=3,
+    #             d1=d1,
+    #             d2=d2,
+    #             t=timeout,
+    #             model_type=True,
+    #             p1_h_mode=True,
+    #             p2_h_mode=False,
+    #             recommend=True
+    #         )
+    #         winner = g.winner
+    #         if winner == "X":
+    #             scoreboard[0] += 1
+    #         elif winner == "O":
+    #             scoreboard[1] += 2
+    #
+    #         sim_count += 1
+    #
+    #     sim_count = 0
+    #
+    #     while sim_count < ((number_of_games - 1) / 2):
+    #         g = Game(
+    #             board_dimension=board_dimension,
+    #             block_number=block_number,
+    #             winning_line_size=winning_line_size,
+    #             play_mode=3,
+    #             d1=d1,
+    #             d2=d2,
+    #             t=timeout,
+    #             model_type=True,
+    #             p1_h_mode=False,
+    #             p2_h_mode=True,
+    #             recommend=True
+    #         )
+    #         winner = g.winner
+    #         if winner == "X":
+    #             scoreboard[1] += 1
+    #         elif winner == "O":
+    #             scoreboard[0] += 2
+    #         sim_count += 1
+    #
+    #     if number_of_games % 2 == 1:
+    #         g = Game(
+    #             board_dimension=board_dimension,
+    #             block_number=block_number,
+    #             winning_line_size=winning_line_size,
+    #             play_mode=3,
+    #             d1=d1,
+    #             d2=d2,
+    #             t=timeout,
+    #             model_type=True,
+    #             p1_h_mode=False,
+    #             p2_h_mode=True,
+    #             recommend=True
+    #         )
+    #
+    #         winner = g.winner
+    #         if winner == "X":
+    #             scoreboard[1] += 1
+    #         elif winner == "O":
+    #             scoreboard[0] += 2
+    #         sim_count += 1
+    #
+    #     print(scoreboard)
+    # else:
+    #     print("Choose your game parameters")
+    #     board_dimension = None
+    #     while board_dimension is None:
+    #         board_dimension = try_int(input("Enter board size: "))
+    #     block_number = None
+    #     while block_number is None:
+    #         block_number = try_int(input("Enter the number of blocks: "))
+    #
+    #     if block_number != 0:
+    #         random_approval = None
+    #         random_blocks_positions_answer = input("Do you wish to have randomize blocks positions (y/N)? ")
+    #         if random_blocks_positions_answer.lower() == "y":
+    #             random_approval = True
+    #         elif random_blocks_positions_answer.lower() == "n":
+    #             random_approval = False
+    #
+    #         block_positions = None
+    #         if not random_approval:
+    #             block_positions = input_block_positions(block_number, board_dimension)
+    #
+    #     winning_line_size = None
+    #     while not winning_line_size:
+    #         winning_line_size = try_int(input("Enter the winning line size: "))
+    #
+    #     print("Play modes:")
+    #     print("H-H: 0")
+    #     print("H-AI: 1")
+    #     print("AI-H: 2")
+    #     print("AI-AI: 3")
+    #     play_mode = None
+    #     while play_mode is None or 0 > play_mode > 3:
+    #         play_mode = try_int(input("Enter the play mode (0-3): "))
+    #
+    #     recommend = False
+    #     if play_mode < 3:
+    #         recommend_answer = input("Do you wish to get move recommendations (y/N)? ")
+    #         if recommend_answer.lower() == "y":
+    #             recommend = True
+    #         elif recommend_answer.lower() == "n":
+    #             recommend = False
+    #
+    #     if not recommend and play_mode == 0:
+    #         print("Game initialized!")
+    #         g = Game(
+    #             board_dimension=board_dimension,
+    #             block_number=block_number,
+    #             winning_line_size=winning_line_size,
+    #             play_mode=play_mode,
+    #             recommend=recommend
+    #         )
+    #
+    #     # # TODO: If  there is time, add removing recommendation for play_mode = 1 & 2
+    #     else:
+    #         d1 = try_int(input("Enter search depth for player 1 (AI): "))
+    #         d2 = try_int(input("Enter search depth for player 2 (AI): "))
+    #
+    #         timeout = try_int(input("Enter search algorithm timeout: "))
+    #
+    #         model_type_answer = input("Do you wish to use an alpha-beta search (y/N)? ")
+    #         model_type = True
+    #         if model_type_answer.lower() == "y":
+    #             model_type = True
+    #         elif model_type_answer.lower() == "n":
+    #             model_type = False
+    #
+    #         h_type_answer = input("Do you wish to use a simple heuristic for player 1 (y/N)? ")
+    #         p1_h_mode = True
+    #         if h_type_answer.lower() == "y":
+    #             p1_h_mode = True
+    #         elif h_type_answer.lower() == "n":
+    #             p1_h_mode = False
+    #
+    #         h_type_answer = input("Do you wish to use a simple heuristic for player 2 (y/N)? ")
+    #         p2_h_mode = True
+    #         if h_type_answer.lower() == "y":
+    #             p2_h_mode = True
+    #         elif h_type_answer.lower() == "n":
+    #             p2_h_mode = False
+    #
+    #         # Outputting to a text file.
+    #         file_name = "gameTrace-" + str(board_dimension) + str(block_number) + str(winning_line_size) + str(
+    #             timeout) + ".txt"
+    #         file = open(file_name, "w+")
+    #         board_parameters = "n=" + str(board_dimension) + " b=" + str(block_number) + " s=" + str(
+    #             winning_line_size) + " t=" + str(timeout)
+    #         file.write(board_parameters)
+    #         if block_number > 0:
+    #             file.write("\n" + str(block_positions))
+    #
+    #         print()
+    #         print("Game initialized!")
+    #         print()
+    g = Game(
+        board_dimension=3,
+        block_number=0,
+        winning_line_size=3,
+        play_mode=3,
+        d1=3,
+        d2=3,
+        t=10,
+        model_type=True,
+        p1_h_mode=True,
+        p2_h_mode=True,
+        recommend=True
+    )
 
-    if run_sim:
-        number_of_games = None
-        while number_of_games is None:
-            number_of_games = try_int(input("Enter the number of simulations: "))
 
-        print("Choose your game parameters")
-        board_dimension = None
-        while board_dimension is None:
-            board_dimension = try_int(input("Enter board size: "))
-
-        block_number = None
-        while block_number is None:
-            block_number = try_int(input("Enter the number of blocks: "))
-
-        winning_line_size = None
-        while not winning_line_size:
-            winning_line_size = try_int(input("Enter the winning line size: "))
-
-        d1 = None
-        d2 = None
-        while d1 is None and d2 is None:
-            d1 = try_int(input("Enter search depth for player 1 (AI): "))
-            d2 = try_int(input("Enter search depth for player 2 (AI): "))
-            if d1 < 1 or d2 < 1:
-                d1 = None
-                d2 = None
-
-        timeout = None
-        while timeout is None:
-            timeout = try_int(input("Enter search algorithm timeout: "))
-
-        sim_count = 0
-        scoreboard = [0, 0]
-        while sim_count<((number_of_games-1)/2):
-            g = Game(
-                board_dimension=board_dimension,
-                block_number=block_number,
-                winning_line_size=winning_line_size,
-                play_mode=3,
-                d1=d1,
-                d2=d2,
-                t=timeout,
-                model_type=True,
-                p1_h_mode=True,
-                p2_h_mode=False,
-                recommend=True
-            )
-            winner = g.winner
-            if winner == "X":
-                scoreboard[0] += 1
-            elif winner == "O":
-                scoreboard[1] += 2
-
-            sim_count += 1
-
-        sim_count = 0
-
-        while sim_count<((number_of_games-1)/2):
-            g = Game(
-                board_dimension=board_dimension,
-                block_number=block_number,
-                winning_line_size=winning_line_size,
-                play_mode=3,
-                d1=d1,
-                d2=d2,
-                t=timeout,
-                model_type=True,
-                p1_h_mode=False,
-                p2_h_mode=True,
-                recommend=True
-            )
-            winner = g.winner
-            if winner == "X":
-                scoreboard[1] += 1
-            elif winner == "O":
-                scoreboard[0] += 2
-            sim_count += 1
-
-        if number_of_games % 2 == 1:
-            g = Game(
-                board_dimension=board_dimension,
-                block_number=block_number,
-                winning_line_size=winning_line_size,
-                play_mode=3,
-                d1=d1,
-                d2=d2,
-                t=timeout,
-                model_type=True,
-                p1_h_mode=False,
-                p2_h_mode=True,
-                recommend=True
-            )
-
-            winner = g.winner
-            if winner == "X":
-                scoreboard[1] += 1
-            elif winner == "O":
-                scoreboard[0] += 2
-            sim_count += 1
-
-        print(scoreboard)
-    else:
-        print("Choose your game parameters")
-        board_dimension = None
-        while board_dimension is None:
-            board_dimension = try_int(input("Enter board size: "))
-        block_number = None
-        while block_number is None:
-            block_number = try_int(input("Enter the number of blocks: "))
-
-        if block_number != 0:
-            random_approval = None
-            random_blocks_positions_answer = input("Do you wish to have randomize blocks positions (y/N)? ")
-            if random_blocks_positions_answer.lower() == "y":
-                random_approval = True
-            elif random_blocks_positions_answer.lower() == "n":
-                random_approval = False
-
-            block_positions = None
-            if not random_approval:
-                block_positions = input_block_positions(block_number, board_dimension)
-
-        winning_line_size = None
-        while not winning_line_size:
-            winning_line_size = try_int(input("Enter the winning line size: "))
-
-        print("Play modes:")
-        print("H-H: 0")
-        print("H-AI: 1")
-        print("AI-H: 2")
-        print("AI-AI: 3")
-        play_mode = None
-        while play_mode is None or 0 > play_mode > 3:
-            play_mode = try_int(input("Enter the play mode (0-3): "))
-
-        recommend = False
-        if play_mode < 3:
-            recommend_answer = input("Do you wish to get move recommendations (y/N)? ")
-            if recommend_answer.lower() == "y":
-                recommend = True
-            elif recommend_answer.lower() == "n":
-                recommend = False
-
-        if not recommend and play_mode == 0:
-            print("Game initialized!")
-            g = Game(
-                board_dimension=board_dimension,
-                block_number=block_number,
-                winning_line_size=winning_line_size,
-                play_mode=play_mode,
-                recommend=recommend
-            )
-
-        # # TODO: If  there is time, add removing recommendation for play_mode = 1 & 2
-        else:
-            d1 = try_int(input("Enter search depth for player 1 (AI): "))
-            d2 = try_int(input("Enter search depth for player 2 (AI): "))
-
-            timeout = try_int(input("Enter search algorithm timeout: "))
-
-            model_type_answer = input("Do you wish to use an alpha-beta search (y/N)? ")
-            model_type = True
-            if model_type_answer.lower() == "y":
-                model_type = True
-            elif model_type_answer.lower() == "n":
-                model_type = False
-
-            h_type_answer = input("Do you wish to use a simple heuristic for player 1 (y/N)? ")
-            p1_h_mode = True
-            if h_type_answer.lower() == "y":
-                p1_h_mode = True
-            elif h_type_answer.lower() == "n":
-                p1_h_mode = False
-
-            h_type_answer = input("Do you wish to use a simple heuristic for player 2 (y/N)? ")
-            p2_h_mode = True
-            if h_type_answer.lower() == "y":
-                p2_h_mode = True
-            elif h_type_answer.lower() == "n":
-                p2_h_mode = False
-
-            # Outputting to a text file.
-            file_name = "gameTrace-" + str(board_dimension) + str(block_number) + str(winning_line_size) + str(
-                timeout) + ".txt"
-            file = open(file_name, "w+")
-            board_parameters = "n=" + str(board_dimension) + " b=" + str(block_number) + " s=" + str(
-                winning_line_size) + " t=" + str(timeout)
-            file.write(board_parameters)
-            if block_number > 0:
-                file.write("\n" + str(block_positions))
-
-            print()
-            print("Game initialized!")
-            print()
-            # TODO: Add block_positions here block number > 1
-            g = Game(
-                board_dimension=board_dimension,
-                block_number=block_number,
-                winning_line_size=winning_line_size,
-                play_mode=play_mode,
-                d1=d1,
-                d2=d2,
-                t=timeout,
-                model_type=model_type,
-                p1_h_mode=p1_h_mode,
-                p2_h_mode=p1_h_mode,
-                recommend=recommend
-            )
-
-        # # closing the file.
-        # file.close()
+# # closing the file.
+# file.close()
 
 
 if __name__ == "__main__":
